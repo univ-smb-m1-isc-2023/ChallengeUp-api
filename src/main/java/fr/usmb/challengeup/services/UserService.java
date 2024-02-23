@@ -3,6 +3,8 @@ package fr.usmb.challengeup.services;
 import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.exceptions.UserNotFoundException;
 import fr.usmb.challengeup.repositories.UserRepository;
+import fr.usmb.challengeup.utils.CorrectFieldsUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
 @Service
 public class UserService {
     private UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
 
     public User getUserById(long id) {
         return userRepository.findById(id).orElseThrow(() ->
@@ -22,7 +25,10 @@ public class UserService {
     }
 
     public void createUser(String username, String email, String password) {
-        // TODO Vérifier validité mail, username ET encoder le mot de passe avec la dépendance Spring Security
-        userRepository.save(new User(username, email, password));
+        if (CorrectFieldsUtil.isUsernameValid(username)
+                && CorrectFieldsUtil.isEmailValid(email)
+                && CorrectFieldsUtil.isPasswordValid(password)) {
+            userRepository.save(new User(username, email, passwordEncoder.encode(password)));
+        }
     }
 }
