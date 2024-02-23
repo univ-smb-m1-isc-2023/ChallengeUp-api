@@ -26,7 +26,7 @@ jobs:
       #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t Challenge-Up-api .
+        run: docker build -t challenge-up-api .
 
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
@@ -34,5 +34,5 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: univ-smb-m1-isc-2023/Challenge-Up-api/main
+          repository: univ-smb-m1-isc-2023/challenge-up-api/main
           tags: latest
