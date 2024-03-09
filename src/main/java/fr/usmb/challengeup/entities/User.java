@@ -15,11 +15,14 @@ public class User {
 
     private String password;
 
+    private double regularity;
+
     protected User() {}
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.regularity = 0.0;
     }
 
     public String getUsername() {
@@ -32,5 +35,11 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public double getRegularity() { return  regularity; }
+
+    public void setRegularity(double regularity) {
+        this.regularity = regularity;
     }
 }
