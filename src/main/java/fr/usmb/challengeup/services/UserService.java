@@ -20,6 +20,13 @@ public class UserService {
         );
     }
 
+    public User getUserByUsernameOrEmail(String username, String email) {
+        if (username != null)
+            return userRepository.findByUsername(username);
+        else
+            return userRepository.findByEmail(email);
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
