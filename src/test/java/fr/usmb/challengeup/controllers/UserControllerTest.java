@@ -26,7 +26,7 @@ public class UserControllerTest {
         String email = "toto@mail.com";
         String password = "password";
 
-        mockMvc.perform(post("user/create")
+        mockMvc.perform(post("/user/create")
                 .param("username", username)
                 .param("email", email)
                 .param("password", password))
