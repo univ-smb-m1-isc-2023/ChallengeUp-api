@@ -12,6 +12,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @Column(unique = true)
     private String username;
 
     private String email;
@@ -20,8 +21,13 @@ public class User {
 
     private double regularity;
 
+    private boolean isPublic;
+
     @OneToMany(mappedBy = "user")
     private Set<Challenge> challenges = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private Set<Progress> progresses = new HashSet<>();
 
     protected User() {}
     public User(String username, String email, String password) {
@@ -29,6 +35,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.regularity = 0.0;
+        this.isPublic = false;
     }
 
     public String getUsername() {
@@ -47,5 +54,29 @@ public class User {
 
     public void setRegularity(double regularity) {
         this.regularity = regularity;
+    }
+
+    public Set<Challenge> getChallenges() {
+        return challenges;
+    }
+
+    public void setChallenges(Set<Challenge> challenges) {
+        this.challenges = challenges;
+    }
+
+    public Set<Progress> getProgresses() {
+        return progresses;
+    }
+
+    public void setProgresses(Set<Progress> progresses) {
+        this.progresses = progresses;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(boolean aPublic) {
+        isPublic = aPublic;
     }
 }
