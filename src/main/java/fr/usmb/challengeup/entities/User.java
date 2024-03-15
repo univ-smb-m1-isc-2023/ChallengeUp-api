@@ -2,6 +2,9 @@ package fr.usmb.challengeup.entities;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 public class User {
 
@@ -16,6 +19,9 @@ public class User {
     private String password;
 
     private double regularity;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Challenge> challenges = new HashSet<>();
 
     protected User() {}
     public User(String username, String email, String password) {

@@ -31,6 +31,9 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    /**
+     * Sauvegarde un utilisateur et encode le mot de passe
+     */
     public void createUser(String username, String email, String password) {
         if (CorrectFieldsUtil.isUsernameValid(username)
                 && CorrectFieldsUtil.isEmailValid(email)
