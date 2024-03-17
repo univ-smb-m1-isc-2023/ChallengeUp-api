@@ -26,12 +26,17 @@ public class ChallengeController {
     }
 
     @GetMapping("/all")
-    public List<Challenge> getAllChalenge() {
-        return challengeService.getAllChallenge();
+    public List<Challenge> getAllChallenges() {
+        return challengeService.getAllChallenges();
     }
 
     @GetMapping("/{id}")
     public Optional<Challenge> getChallengeById(@PathVariable long id) {
         return challengeService.getChallengeById(id);
+    }
+
+    @GetMapping(value = {"", "/", "/test"})
+    public String test() {
+        return "<h1>Bienvenue dans le controller des challenges </h1>";
     }
 }
