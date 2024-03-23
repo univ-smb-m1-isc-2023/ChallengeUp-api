@@ -21,6 +21,19 @@ public class Progress {
     @JoinColumn(name="user_id")
     private User user;
 
+    public Progress() {}
+
+    public Progress(Date date, boolean isCompleted, Challenge challenge, User user) {
+        this.date = date;
+        this.isCompleted = isCompleted;
+        this.challenge = challenge;
+        this.user = user;
+    }
+
+    public Progress(Challenge challenge, User user) {
+        this(new Date(), false, challenge, user);
+    }
+
     public Date getDate() {
         return date;
     }

@@ -13,6 +13,10 @@ public class ProgressService {
     @Autowired
     private ProgressRepository progressRepository;
 
+    public Progress createProgress(Progress progress) {
+        return progressRepository.save(progress);
+    }
+
     public List<Progress> getAllProgress() {
         return progressRepository.findAll();
     }
