@@ -24,4 +24,6 @@ public class ChallengeService {
     public Optional<Challenge> getChallengeById(long id) {
         return challengeRepository.findById(id);
     }
+
+    public List<Challenge> findChallengesWithHighestProgress() { return challengeRepository.findChallengesWithHighestProgress(); }
 }

@@ -35,6 +35,11 @@ public class ChallengeController {
         return challengeService.getChallengeById(id);
     }
 
+    @GetMapping("/highestProgress")
+    public List<Challenge> findChallengesWithHighestProgress() {
+        return challengeService.findChallengesWithHighestProgress();
+    }
+
     @GetMapping(value = {"", "/", "/test"})
     public String test() {
         return "<h1>Bienvenue dans le controller des challenges </h1>";

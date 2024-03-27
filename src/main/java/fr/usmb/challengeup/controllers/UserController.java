@@ -31,6 +31,11 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable long id) {
+        return userService.getUserById(id);
+    }
+
     @GetMapping(value = {"", "/", "/test"})
     public String test() {
         return "<h1>Bienvenue dans le controller des utilisateurs </h1>" +

@@ -5,6 +5,8 @@ import fr.usmb.challengeup.services.ProgressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/progress")
 public class ProgressController {
@@ -23,5 +25,10 @@ public class ProgressController {
     @PostMapping("/create")
     public Progress createProgress(@RequestBody Progress newProgress) {
         return progressService.createProgress(newProgress);
+    }
+
+    @GetMapping("/{id}")
+    public Optional<Progress> getChallengeById(@PathVariable long id) {
+        return progressService.getProgressById(id);
     }
 }
