@@ -1,11 +1,11 @@
 package fr.usmb.challengeup.entities;
 import jakarta.persistence.*;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "challenge")
 public class Challenge {
      public enum Periodicity {
           QUOTIDIEN,
