@@ -48,7 +48,7 @@ public class UserController {
     public String test() {
         return "<h1>Bienvenue dans le controller des utilisateurs </h1>" +
                 "<p>Informations</p>" +
-                "<ul><li> Utilisateurs : " + /*userService.getAllUsers().isEmpty() + "</li>" +*/
+                "<ul><li> Utilisateurs : " + userService.getAllUsers().isEmpty() + "</li>" +
                 "</ul>";
     }
 }
