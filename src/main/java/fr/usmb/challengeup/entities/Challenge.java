@@ -30,6 +30,8 @@ public class Challenge {
      private Set<Progress> progresses = new HashSet<>();
 //     private Goal goal; // l'objectif du challenge (entier, booléen ...)
 
+     public Challenge() {}
+
      public Challenge(String title, String tag, Periodicity periodicity, String description) {
           this.title = title;
           this.tag = tag;

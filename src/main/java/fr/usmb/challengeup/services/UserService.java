@@ -4,6 +4,7 @@ import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.exceptions.UserNotFoundException;
 import fr.usmb.challengeup.repositories.UserRepository;
 import fr.usmb.challengeup.utils.CorrectFieldsUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Service
 public class UserService {
+    @Autowired
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
 
