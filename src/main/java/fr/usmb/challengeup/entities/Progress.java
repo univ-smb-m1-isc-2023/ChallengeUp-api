@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "progress")
 public class Progress {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
