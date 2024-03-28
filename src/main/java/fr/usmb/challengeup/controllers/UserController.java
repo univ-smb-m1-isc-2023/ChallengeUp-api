@@ -1,11 +1,13 @@
 package fr.usmb.challengeup.controllers;
 
+import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -34,6 +36,12 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserById(@PathVariable long id) {
         return userService.getUserById(id);
+    }
+
+    @GetMapping("/challenges/{id}")
+    public List<Challenge> getChallengesByUserId(@PathVariable long id) {
+        User user = userService.getUserById(id);
+        return new ArrayList<>(user.getChallenges());
     }
 
     @GetMapping(value = {"", "/", "/test"})
