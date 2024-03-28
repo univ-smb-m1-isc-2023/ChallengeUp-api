@@ -46,7 +46,8 @@ public class UserController {
 
     @GetMapping(value = {"", "/", "/test"})
     public String test() {
-        // userService.createUser("titi", "titi@mail.com", "mot_de_passe");
+        if (userService.getUserByUsernameOrEmail("titi", null) == null)
+            userService.createUser("titi", "titi@mail.com", "mot_de_passe");
         return "<h1>Bienvenue dans le controller des utilisateurs </h1>" +
                 "<p>Informations</p>" +
                 "<ul><li> Utilisateurs : " + userService.getAllUsers().isEmpty() + "</li>" +
