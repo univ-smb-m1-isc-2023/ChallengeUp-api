@@ -5,6 +5,7 @@ import fr.usmb.challengeup.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,12 +18,14 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     // public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
     public ResponseEntity<?> login(@RequestBody User user) {
         User foundUser = userService.getUserByUsernameOrEmail(user.getUsername(), user.getEmail());
-        if (foundUser != null && foundUser.getPassword().equals(user.getPassword())) {
+        if (foundUser != null && passwordEncoder.matches(user.getPassword(), foundUser.getPassword())) {
             String token = "FOURNIR UN VRAI TOKEN";
             return ResponseEntity.ok(token);
         }
