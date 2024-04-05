@@ -80,4 +80,8 @@ public class User {
     public void setPublic(boolean aPublic) {
         isPublic = aPublic;
     }
+
+    public long getId() {
+        return id;
+    }
 }

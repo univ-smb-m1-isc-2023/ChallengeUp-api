@@ -26,7 +26,7 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody User user) {
         User foundUser = userService.getUserByUsernameOrEmail(user.getUsername(), user.getEmail());
         if (foundUser != null && passwordEncoder.matches(user.getPassword(), foundUser.getPassword())) {
-            String token = "FOURNIR UN VRAI TOKEN";
+            String token = String.valueOf(foundUser.getId());
             return ResponseEntity.ok(token);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Mauvais nom d'utilisateur ou mot de passe");
