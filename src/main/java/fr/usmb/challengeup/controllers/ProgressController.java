@@ -3,6 +3,7 @@ package fr.usmb.challengeup.controllers;
 import fr.usmb.challengeup.entities.Progress;
 import fr.usmb.challengeup.services.ProgressService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class ProgressController {
     }
 
     @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
     public Progress createProgress(@RequestBody Progress newProgress) {
         return progressService.createProgress(newProgress);
     }
