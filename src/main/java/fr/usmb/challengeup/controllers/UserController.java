@@ -22,9 +22,9 @@ public class UserController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createUser(@PathVariable String username,
-                           @PathVariable String email,
-                           @PathVariable String password){
+    public void createUser(@RequestParam String username,
+                           @RequestParam String email,
+                           @RequestParam String password){
         userService.createUser(username, email, password);
     }
 
@@ -46,12 +46,21 @@ public class UserController {
 
     @GetMapping(value = {"", "/", "/test"})
     public String test() {
+        String content = "";
         if (userService.getUserByUsernameOrEmail("titi", null) == null)
             userService.createUser("titi", "titi@mail.com", "mot_de_passe");
-        return "<h1>Bienvenue dans le controller des utilisateurs </h1>" +
-                "<p>Informations</p>" +
-                "<ul><li> Utilisateurs : " + userService.getAllUsers().isEmpty() + "</li>" +
-                "<li>" + userService.getAllUsers().get(0).getUsername() + "</li>" +
-                "</ul>";
+        content += "<h1>Bienvenue dans le controller des utilisateurs </h1>" +
+                "<p>Informations</p>" + "<p>Utilisateurs</p>" ;
+
+        List<User> userList = userService.getAllUsers();
+        content += "<ul><li> Base utilisateur vide : " + userList.isEmpty() + "</li>";
+
+        for (User u : userList) {
+            content += "<li>" + u.getUsername() + " - " + u.getEmail() + "</li>";
+        }
+
+        content += "</ul>";
+
+        return content;
     }
 }

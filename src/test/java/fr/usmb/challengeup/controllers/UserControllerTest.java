@@ -3,6 +3,7 @@ package fr.usmb.challengeup.controllers;
 import fr.usmb.challengeup.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -20,7 +22,7 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
-   /* @Test
+   @Test
     public void createUser() throws Exception {
         String username = "Toto";
         String email = "toto@mail.com";
@@ -34,5 +36,5 @@ public class UserControllerTest {
 
         verify(userService, times(1))
                 .createUser(username, email, password);
-    }*/
+    }
 }
