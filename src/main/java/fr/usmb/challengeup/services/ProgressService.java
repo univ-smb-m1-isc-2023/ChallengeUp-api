@@ -24,4 +24,12 @@ public class ProgressService {
     public Optional<Progress> getProgressById(Long id) {
         return progressRepository.findById(id);
     }
+
+    public List<Progress> getProgressesByUserId(long uid) { return progressRepository.findByUserId(uid); }
+
+    public List<Progress> getProgressesByChallengeId(long cid) { return progressRepository.findByChallengeId(cid); }
+
+    public Progress getProgressByUserIdAndChallengeId(long uid, long cid) {
+        return progressRepository.findByUserIdAndChallengeId(uid, cid);
+    }
 }

@@ -35,6 +35,9 @@ public class ChallengeController {
         return challengeService.getChallengeById(id);
     }
 
+    @GetMapping("/user/{id}")
+    public List<Challenge> getChallengesByUserId(@PathVariable long id) { return challengeService.getChallengesByUserId(id); }
+
     @GetMapping("/highestProgress")
     public List<Challenge> findChallengesWithHighestProgress() {
         return challengeService.findChallengesWithHighestProgress();
