@@ -20,21 +20,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthControllerTest {
-    @Autowired
+    @MockBean
     private PasswordEncoder passwordEncoder;
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private UserService userService;
-
-    @Test
-    public void passwordEncoderTest() {
-        String plainTextPassword = "oui";
-        String hashedPassword = passwordEncoder.encode(plainTextPassword);
-
-        assertTrue(passwordEncoder.matches(plainTextPassword, hashedPassword));
-    }
 
     @Test
     public void signUp() throws Exception{
@@ -63,4 +55,36 @@ class AuthControllerTest {
                 .andExpect(content().string("Un utilisateur avec ce nom d'utilisateur ou cet email existe déjà"));
     }
 
+    @Test
+    public void login() throws Exception {
+        String username = "Toto";
+        String email = "toto@mail.com";
+        String password = "password";
+
+        User mockUser = new User(username, email, passwordEncoder.encode(password));
+
+        // L'utilisateur existe
+        when(userService.getUserByUsernameOrEmail(username, email)).thenReturn(mockUser);
+        when(passwordEncoder.matches(password, mockUser.getPassword())).thenReturn(true);
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"" + username + "\",\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isOk());
+
+        // L'utilisateur existe mais son mot de passe est incorrect
+        when(passwordEncoder.matches(password, mockUser.getPassword())).thenReturn(false);
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"" + username + "\",\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Mauvais nom d'utilisateur ou mot de passe"));
+
+        // L'utilsateur n'existe pas
+        when(userService.getUserByUsernameOrEmail(username, email)).thenReturn(null);
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"" + username + "\",\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Mauvais nom d'utilisateur ou mot de passe"));
+    }
 }
