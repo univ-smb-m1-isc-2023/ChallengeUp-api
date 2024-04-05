@@ -96,4 +96,8 @@ public class Challenge {
      public void setProgresses(Set<Progress> progresses) {
           this.progresses = progresses;
      }
+
+     public long getId() {
+          return id;
+     }
 }

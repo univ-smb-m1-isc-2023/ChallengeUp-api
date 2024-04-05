@@ -13,8 +13,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.is;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -37,5 +39,17 @@ public class ProgressControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void getProgressByUserIdAndChallengeId() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", null);
+        Progress progress = new Progress(challenge, user);
+
+        when(progressService.getProgressByUserIdAndChallengeId(user.getId(), challenge.getId())).thenReturn(progress);
+        mockMvc.perform(get("/progress/user/" + user.getId() + "/challenge/" + challenge.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is((int) progress.getId())));
     }
 }
