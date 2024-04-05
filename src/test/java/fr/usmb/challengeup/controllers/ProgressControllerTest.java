@@ -44,7 +44,7 @@ public class ProgressControllerTest {
     @Test
     public void getProgressByUserIdAndChallengeId() throws Exception {
         User user = new User("Toto", "toto@mail.com", "passwordCool*");
-        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", null);
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
         Progress progress = new Progress(challenge, user);
 
         when(progressService.getProgressByUserIdAndChallengeId(user.getId(), challenge.getId())).thenReturn(progress);
