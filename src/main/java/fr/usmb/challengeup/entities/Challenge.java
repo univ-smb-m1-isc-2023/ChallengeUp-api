@@ -32,12 +32,13 @@ public class Challenge {
 
      public Challenge() {}
 
-     public Challenge(String title, String tag, Periodicity periodicity, String description) {
+     public Challenge(String title, String tag, Periodicity periodicity, String description, User user) {
           this.title = title;
           this.tag = tag;
           this.periodicity = periodicity;
           this.description = description;
           this.isReported = false;
+          this.user = user;
      }
 
      public String getTitle() {

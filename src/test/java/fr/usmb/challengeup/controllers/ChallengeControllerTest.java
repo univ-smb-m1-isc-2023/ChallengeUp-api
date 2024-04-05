@@ -25,7 +25,7 @@ public class ChallengeControllerTest {
 
     @Test
     public void createChallenge() throws Exception {
-        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", null);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(challenge);
 

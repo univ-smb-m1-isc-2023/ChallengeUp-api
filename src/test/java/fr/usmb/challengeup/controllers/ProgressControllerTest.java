@@ -28,7 +28,7 @@ public class ProgressControllerTest {
     @Test
     public void createProgress() throws Exception {
         User user = new User("Toto", "toto@mail.com", "passwordCool*");
-        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", null);
         Progress progress = new Progress(challenge, user);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(progress);
