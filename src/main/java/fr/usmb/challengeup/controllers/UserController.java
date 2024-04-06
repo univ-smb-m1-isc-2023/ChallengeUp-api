@@ -38,6 +38,9 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+    @PutMapping("/public/{id}")
+    public void toggleUserPublic(@PathVariable long id) { userService.toggleUserPublic(id); }
+
     @GetMapping(value = {"", "/", "/test"})
     public String test() {
         String content = "";
@@ -50,7 +53,10 @@ public class UserController {
         content += "<ul><li> Base utilisateur vide : " + userList.isEmpty() + "</li>";
 
         for (User u : userList) {
-            content += "<li>" + u.getUsername() + " - " + u.getEmail() + "</li>";
+            content += "<li>" + u.getUsername() + " - " + u.getEmail()
+                    + " - ID = " + u.getId()
+                    + " - public = " + u.isPublic()
+                    + "</li>";
         }
 
         content += "</ul>";

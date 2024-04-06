@@ -11,14 +11,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.hamcrest.Matchers.is;
 import static java.util.Collections.emptyList;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -80,5 +79,18 @@ public class UserControllerTest {
         mockMvc.perform(get("/user/" + nonExistentUserId))
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));
+    }
+
+    @Test
+    public void toggleUserPublic() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+
+        assertFalse(user.isPublic());
+
+        mockMvc.perform(put("/user/public/" + uid))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).toggleUserPublic(uid);
     }
 }

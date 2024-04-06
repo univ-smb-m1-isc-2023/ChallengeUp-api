@@ -44,4 +44,8 @@ public class UserService {
             userRepository.save(new User(username, email, passwordEncoder.encode(password)));
         }
     }
+
+    public void toggleUserPublic(Long id) {
+        userRepository.toggleUserPublic(id);
+    }
 }
