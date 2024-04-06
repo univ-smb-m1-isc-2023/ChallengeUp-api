@@ -13,7 +13,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.when;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Collections.emptyList;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.is;
@@ -39,6 +43,80 @@ public class ProgressControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void getProgressById() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress progress = new Progress(challenge, user);
+
+        when(progressService.getProgressById(anyLong())).thenReturn(Optional.of(progress));
+        mockMvc.perform(get("/progress/" + progress.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.completed", is(false)))
+                .andExpect(jsonPath("$.user.username", is("Toto")))
+                .andExpect(jsonPath("$.challenge.title", is("Manger")));
+    }
+
+    @Test
+    public void getProgressesByUserId() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge2 = new Challenge("Boire", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge3 = new Challenge("Dormir", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress p = new Progress(challenge, user);
+        Progress p2 = new Progress(challenge2, user);
+        Progress p3 = new Progress(challenge3, user);
+
+        when(progressService.getProgressesByUserId(user.getId())).thenReturn(List.of(p, p2, p3));
+        mockMvc.perform(get("/progress/user/" + user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].completed", is(false)))
+                .andExpect(jsonPath("$[1].completed", is(false)))
+                .andExpect(jsonPath("$[2].completed", is(false)))
+                .andExpect(jsonPath("$[0].challenge.title", is("Manger")))
+                .andExpect(jsonPath("$[1].challenge.title", is("Boire")))
+                .andExpect(jsonPath("$[2].challenge.title", is("Dormir")))
+                .andExpect(jsonPath("$[0].user.username", is("Toto")))
+                .andExpect(jsonPath("$[1].user.username", is("Toto")))
+                .andExpect(jsonPath("$[2].user.username", is("Toto")));
+
+        // Aucun progrès pour l'utilisateur
+        when(progressService.getProgressesByUserId(user.getId())).thenReturn(emptyList());
+        mockMvc.perform(get("/progress/user/" + user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", is(emptyList())));
+    }
+
+    @Test
+    public void getProgressesByChallengeId() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        User user2 = new User("Jean-Eudes", "Jean-Eudes@mail.com", "passwordCool*");
+        User user3 = new User("Moi", "moi@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress p = new Progress(challenge, user);
+        Progress p2 = new Progress(challenge, user2);
+        Progress p3 = new Progress(challenge, user3);
+        p3.setCompleted(true);
+
+        when(progressService.getProgressesByChallengeId(challenge.getId())).thenReturn(List.of(p, p2, p3));
+        mockMvc.perform(get("/progress/challenge/" + challenge.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].completed", is(false)))
+                .andExpect(jsonPath("$[1].completed", is(false)))
+                .andExpect(jsonPath("$[2].completed", is(true)))
+                .andExpect(jsonPath("$[0].challenge.title", is("Manger")))
+                .andExpect(jsonPath("$[1].challenge.title", is("Manger")))
+                .andExpect(jsonPath("$[2].challenge.title", is("Manger")))
+                .andExpect(jsonPath("$[0].user.username", is("Toto")))
+                .andExpect(jsonPath("$[1].user.username", is("Jean-Eudes")))
+                .andExpect(jsonPath("$[2].user.username", is("Moi")));
+
+        when(progressService.getProgressesByChallengeId(challenge.getId())).thenReturn(emptyList());
+        mockMvc.perform(get("/progress/challenge/" + challenge.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", is(emptyList())));
     }
 
     @Test

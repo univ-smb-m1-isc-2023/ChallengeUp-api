@@ -31,7 +31,7 @@ public class ProgressController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Progress> getChallengeById(@PathVariable long id) {
+    public Optional<Progress> getProgressById(@PathVariable long id) {
         return progressService.getProgressById(id);
     }
 
