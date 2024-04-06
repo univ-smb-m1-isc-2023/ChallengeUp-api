@@ -66,4 +66,8 @@ public class Progress {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public long getId() {
+        return id;
+    }
 }

@@ -38,12 +38,6 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @GetMapping("/challenges/{id}")
-    public List<Challenge> getChallengesByUserId(@PathVariable long id) {
-        User user = userService.getUserById(id);
-        return new ArrayList<>(user.getChallenges());
-    }
-
     @GetMapping(value = {"", "/", "/test"})
     public String test() {
         String content = "";
