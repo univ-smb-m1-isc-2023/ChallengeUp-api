@@ -1,5 +1,6 @@
 package fr.usmb.challengeup.controllers;
 
+import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +9,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.hamcrest.Matchers.is;
+import static java.util.Collections.emptyList;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,5 +43,42 @@ public class UserControllerTest {
 
         verify(userService, times(1))
                 .createUser(username, email, password);
+    }
+
+    @Test
+    public void getAllUsers() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        User user2 = new User("Jean-Eudes", "Jean-Eudes@mail.com", "passwordCool*");
+        User user3 = new User("Moi", "moi@mail.com", "passwordCool*");
+
+        when(userService.getAllUsers()).thenReturn(List.of(user, user2, user3));
+        mockMvc.perform(get("/user/all"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].username", is("Toto")))
+                .andExpect(jsonPath("$[1].username", is("Jean-Eudes")))
+                .andExpect(jsonPath("$[2].username", is("Moi")));
+
+        // Aucun utilisateur dans la base
+        when(userService.getAllUsers()).thenReturn(emptyList());
+        mockMvc.perform(get("/user/all"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", is(emptyList())));
+    }
+
+    @Test
+    public void getUserById() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+
+        when(userService.getUserById(user.getId())).thenReturn(user);
+        mockMvc.perform(get("/user/" + user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username", is("Toto")));
+
+        // Utilisateur non trouvé
+        long nonExistentUserId = 9999L;
+        when(userService.getUserById(nonExistentUserId)).thenReturn(null);
+        mockMvc.perform(get("/user/" + nonExistentUserId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
     }
 }
