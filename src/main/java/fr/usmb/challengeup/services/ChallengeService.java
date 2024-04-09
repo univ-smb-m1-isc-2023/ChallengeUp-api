@@ -2,8 +2,10 @@ package fr.usmb.challengeup.services;
 
 import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.repositories.ChallengeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +30,12 @@ public class ChallengeService {
     public List<Challenge> findChallengesWithHighestProgress() { return challengeRepository.findChallengesWithHighestProgress(); }
 
     public List<Challenge> getChallengesByUserId(long uid) { return  challengeRepository.findByUserId(uid); }
+
+    @Transactional
+    public Challenge updateIsReportedStatus(long id, boolean isReported) {
+        Challenge challenge = challengeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Challenge " + id + " inexistant."));
+        challenge.setReported(isReported);
+        return challengeRepository.save(challenge);
+    }
 }
