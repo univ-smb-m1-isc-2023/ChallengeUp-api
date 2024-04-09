@@ -1,6 +1,8 @@
 package fr.usmb.challengeup.controllers;
 
+import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.entities.User;
+import fr.usmb.challengeup.services.ChallengeService;
 import fr.usmb.challengeup.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static java.util.Collections.emptyList;
@@ -27,6 +30,8 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+    @MockBean
+    private ChallengeService challengeService;
 
    @Test
     public void createUser() throws Exception {
@@ -92,5 +97,44 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
 
         verify(userService, times(1)).toggleUserPublic(uid);
+    }
+
+    @Test
+    public void subscribeTo() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        long cid = challenge.getId();
+
+        when(userService.getUserById(uid)).thenReturn(user);
+        when(challengeService.getChallengeById(cid)).thenReturn(Optional.of(challenge));
+        mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void subscribeTo_ChallengeNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        long cid = challenge.getId();
+
+        when(userService.getUserById(uid)).thenReturn(user);
+        when(challengeService.getChallengeById(cid)).thenReturn(Optional.empty());
+        mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void subscribeTo_UserNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        long cid = challenge.getId();
+
+        when(userService.getUserById(uid)).thenReturn(null);
+        when(challengeService.getChallengeById(cid)).thenReturn(Optional.of(challenge));
+        mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
+                .andExpect(status().isNotFound());
     }
 }

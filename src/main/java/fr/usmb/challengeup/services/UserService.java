@@ -45,6 +45,14 @@ public class UserService {
         }
     }
 
+    /**
+     * Sauvegarde l'objet utilisateur en base. Cela suppose que l'utilisateur existe déjà et qu'on a
+     * modifié queque chose sur lui.
+     */
+    public User editUser(User user) {
+        return userRepository.save(user);
+    }
+
     public void toggleUserPublic(Long id) {
         userRepository.toggleUserPublic(id);
     }
