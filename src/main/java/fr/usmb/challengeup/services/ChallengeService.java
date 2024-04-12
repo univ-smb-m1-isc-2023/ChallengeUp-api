@@ -31,6 +31,10 @@ public class ChallengeService {
 
     public List<Challenge> getChallengesByUserId(long uid) { return  challengeRepository.findByUserId(uid); }
 
+    public void deleteAllChallenges() {
+        challengeRepository.deleteAll();
+    }
+
     @Transactional
     public Challenge updateIsReportedStatus(long id, boolean isReported) {
         Challenge challenge = challengeRepository.findById(id)

@@ -59,4 +59,10 @@ public class ChallengeController {
     public String test() {
         return "<h1>Bienvenue dans le controller des challenges </h1>";
     }
+
+    @GetMapping("/delete/all")
+    public String deleteAll() {
+        challengeService.deleteAllChallenges();
+        return "Tous vos challenges ont été supprimés.";
+    }
 }
