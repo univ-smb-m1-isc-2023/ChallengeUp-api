@@ -168,4 +168,12 @@ public class ChallengeControllerTest {
                 .andExpect(status().isNotFound());
         verify(challengeService, times(1)).updateIsReportedStatus(cid, true);
     }
+
+    @Test
+    public void deleteAll() throws Exception {
+        mockMvc.perform(get("/challenge/delete/all"))
+                .andExpect(status().isOk());
+
+        verify(challengeService, times(1)).deleteAllChallenges();
+    }
 }
