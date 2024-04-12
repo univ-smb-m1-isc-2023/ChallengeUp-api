@@ -4,6 +4,7 @@ import fr.usmb.challengeup.entities.Progress;
 import fr.usmb.challengeup.services.ProgressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,6 +49,19 @@ public class ProgressController {
     @GetMapping("/user/{uid}/challenge/{cid}")
     public Progress getProgressByUserIdAndChallengeId(@PathVariable long uid, @PathVariable long cid) {
         return progressService.getProgressByUserIdAndChallengeId(uid, cid);
+    }
+
+    @PutMapping("/complete/{id}/{isCompleted}")
+    public ResponseEntity<?> updateProgressCompleted(@PathVariable long id, @PathVariable boolean isCompleted) {
+        Optional<Progress> optProgress = progressService.getProgressById(id);
+        if (optProgress.isEmpty())
+            return new ResponseEntity<>("Aucun progrès pour ce challenge.", HttpStatus.NOT_FOUND);
+        else {
+            Progress editedProgress = progressService.setIsCompleted(optProgress.get(), isCompleted);
+            if (editedProgress == null)
+                return new ResponseEntity<>("L'édition du progrès a échoué.", HttpStatus.INTERNAL_SERVER_ERROR);
+            else return ResponseEntity.ok(editedProgress);
+        }
     }
 
 }

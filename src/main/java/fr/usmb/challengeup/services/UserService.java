@@ -47,7 +47,7 @@ public class UserService {
 
     /**
      * Sauvegarde l'objet utilisateur en base. Cela suppose que l'utilisateur existe déjà et qu'on a
-     * modifié queque chose sur lui.
+     * modifié quelque chose sur lui.
      */
     public User editUser(User user) {
         return userRepository.save(user);

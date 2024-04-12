@@ -29,7 +29,15 @@ public class ProgressService {
 
     public List<Progress> getProgressesByChallengeId(long cid) { return progressRepository.findByChallengeId(cid); }
 
+    /**
+     * Récupère le progrès associé à un utilisateur sur un challenge spécifique
+     */
     public Progress getProgressByUserIdAndChallengeId(long uid, long cid) {
         return progressRepository.findByUserIdAndChallengeId(uid, cid);
+    }
+
+    public Progress setIsCompleted(Progress progress, boolean isCompleted) {
+        progress.setCompleted(isCompleted);
+        return progressRepository.save(progress);
     }
 }

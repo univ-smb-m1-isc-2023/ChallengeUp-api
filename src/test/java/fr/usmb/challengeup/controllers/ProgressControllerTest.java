@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -129,5 +130,49 @@ public class ProgressControllerTest {
         mockMvc.perform(get("/progress/user/" + user.getId() + "/challenge/" + challenge.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is((int) progress.getId())));
+    }
+
+    @Test
+    public void updateProgressCompleted() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress progress = new Progress(challenge, user);
+        long pid = progress.getId();
+        assertFalse(progress.isCompleted());
+
+        when(progressService.getProgressById(pid)).thenReturn(Optional.of(progress));
+        when(progressService.setIsCompleted(progress, true)).thenReturn(progress);
+        progress.setCompleted(true);
+        mockMvc.perform(put("/progress/complete/" + pid + "/" + true))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.completed", is(true)));
+    }
+
+    @Test
+    public void updateProgressCompleted_ProgressNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress progress = new Progress(challenge, user);
+        long pid = progress.getId();
+
+        when(progressService.getProgressById(pid)).thenReturn(Optional.empty());
+        mockMvc.perform(put("/progress/complete/" + pid + "/" + true))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Aucun progrès pour ce challenge."));
+    }
+
+    @Test
+    public void updateProgressCompleted_EditionFailed() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress progress = new Progress(challenge, user);
+        long pid = progress.getId();
+
+        when(progressService.getProgressById(pid)).thenReturn(Optional.of(progress));
+        when(progressService.setIsCompleted(progress, true)).thenReturn(null);
+        mockMvc.perform(put("/progress/complete/" + pid + "/" + true))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("L'édition du progrès a échoué."));
     }
 }
