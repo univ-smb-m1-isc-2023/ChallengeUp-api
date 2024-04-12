@@ -1,5 +1,6 @@
 package fr.usmb.challengeup.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -16,10 +17,12 @@ public class Progress {
 
     @ManyToOne
     @JoinColumn(name="challenge_id")
+    @JsonBackReference
     private Challenge challenge;
 
     @ManyToOne
     @JoinColumn(name="user_id")
+    @JsonBackReference
     private User user;
 
     public Progress() {}

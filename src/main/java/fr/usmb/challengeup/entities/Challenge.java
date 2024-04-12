@@ -1,4 +1,6 @@
 package fr.usmb.challengeup.entities;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -24,9 +26,11 @@ public class Challenge {
 
      @ManyToOne
      @JoinColumn(name = "user_id")
+     @JsonBackReference
      private User user;
 
      @OneToMany(mappedBy = "challenge")
+     @JsonManagedReference
      private Set<Progress> progresses = new HashSet<>();
 //     private Goal goal; // l'objectif du challenge (entier, booléen ...)
 
