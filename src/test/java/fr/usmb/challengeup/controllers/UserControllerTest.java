@@ -12,8 +12,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.is;
 import static java.util.Collections.emptyList;
@@ -137,6 +139,51 @@ public class UserControllerTest {
         when(challengeService.getChallengeById(cid)).thenReturn(Optional.of(challenge));
         mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void unsubscribeTo() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge2 = new Challenge("Boire", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge3 = new Challenge("Dormir", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Set<Challenge> list = new HashSet<>();
+        list.add(challenge); list.add(challenge2); list.add(challenge3);
+        user.setChallenges(list);
+        long uid = user.getId();
+        long cid = challenge2.getId();
+
+        when(userService.getUserById(uid)).thenReturn(user);
+        mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + cid))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void unsubscribeTo_UserNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+
+        when(userService.getUserById(uid)).thenReturn(null);
+        mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + anyLong()))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Utilisateur non trouvé"));
+    }
+
+    @Test
+    public void unsubscribeTo_ChallengeNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge2 = new Challenge("Boire", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge3 = new Challenge("Dormir", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Set<Challenge> list = new HashSet<>();
+        user.setChallenges(list);
+        long uid = user.getId();
+        long cid = challenge2.getId();
+
+        when(userService.getUserById(uid)).thenReturn(user);
+        mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + cid))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Challenge non trouvé"));
     }
 
     @Test

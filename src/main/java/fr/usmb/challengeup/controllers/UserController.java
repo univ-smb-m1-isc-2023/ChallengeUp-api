@@ -65,6 +65,30 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Le challenge n'existe pas.");
     }
 
+    @PutMapping("/{uid}/unsubscribe/{cid}")
+    public ResponseEntity<?> unsubscribeTo(@PathVariable long uid, @PathVariable long cid) {
+        User user = userService.getUserById(uid);
+        if (user == null)
+            return new ResponseEntity<>("Utilisateur non trouvé", HttpStatus.NOT_FOUND);
+        else {
+            Challenge challengeToRemove = null;
+            Set<Challenge> userChallenges = user.getChallenges();
+            for (Challenge c : userChallenges) {
+                if (c.getId() == cid) {
+                    challengeToRemove = c;
+                    break;
+                }
+            }
+            if (challengeToRemove == null)
+                return new ResponseEntity<>("Challenge non trouvé", HttpStatus.NOT_FOUND);
+            else {
+                userChallenges.remove(challengeToRemove);
+                user.setChallenges(userChallenges);
+                return ResponseEntity.ok(userService.editUser(user));
+            }
+        }
+    }
+
     @GetMapping("/profile/{username}")
     public ResponseEntity<?> watchProfile(@PathVariable String username) {
         // Consulter le profil de quelqu'un en ne renvoyant que certaines infos
