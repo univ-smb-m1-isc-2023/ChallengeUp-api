@@ -1,6 +1,7 @@
 package fr.usmb.challengeup.bot;
 
 import fr.usmb.challengeup.entities.Challenge;
+import fr.usmb.challengeup.services.UserService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -11,9 +12,13 @@ import net.dv8tion.jda.api.entities.User;
 /* import net.dv8tion.jda.api.entities.Message;*/
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.login.LoginException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.ArrayList;
 /* import java.util.concurrent.TimeUnit; */
 
@@ -21,6 +26,8 @@ public class DiscordBot extends ListenerAdapter {
 
     private boolean waitingForConfirmation = false;
     private Map<Long, Integer> tupleSpace = new HashMap<>();
+    @Autowired
+    private UserService userService;
     private ArrayList<String> oui = new ArrayList<>();
     private ArrayList<String> non = new ArrayList<>();
 
@@ -111,6 +118,12 @@ public class DiscordBot extends ListenerAdapter {
 
         if (!tupleSpace.containsKey(Long.valueOf(author.getId()))){
             if (message.equalsIgnoreCase("!start")) {
+                List<fr.usmb.challengeup.entities.User> listUser = userService.getAllUsers();
+                author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Voici les " + listUser.size() + " utilisateurs présents dans la base : ")).queue();
+                for (int i = 0; i<listUser.size(); i++){
+                    //author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Voici les utilisateurs présents dans la base : ")).queue();
+                    System.out.println(listUser.get(i));
+                }
                 waitingForConfirmation = true;
                 author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Voici vos challenges en attente et votre ID : " + author.getId())).queue();
                 for (int i = 0; i < challenges.size(); i++){
