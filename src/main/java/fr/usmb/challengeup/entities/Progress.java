@@ -14,11 +14,11 @@ public class Progress {
 
     private boolean isCompleted;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name="challenge_id")
     private Challenge challenge;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
 
