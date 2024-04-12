@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -136,5 +137,37 @@ public class UserControllerTest {
         when(challengeService.getChallengeById(cid)).thenReturn(Optional.of(challenge));
         mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void watchProfile() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        user.setPublic(true);
+
+        when(userService.getUserByUsernameOrEmail(user.getUsername(), null)).thenReturn(user);
+        mockMvc.perform(get("/user/profile/" + user.getUsername()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username", is("Toto")));
+    }
+
+    @Test
+    public void watchProfile_UserNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+
+        when(userService.getUserByUsernameOrEmail(user.getUsername(), null)).thenReturn(null);
+        mockMvc.perform(get("/user/profile/" + user.getUsername()))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Utilisateur non trouvé"));
+    }
+
+    @Test
+    public void watchProfile_UserNotPublic() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+
+        when(userService.getUserByUsernameOrEmail(user.getUsername(), null)).thenReturn(user);
+        mockMvc.perform(get("/user/profile/" + user.getUsername()))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string("Ce profil n'est pas public."));
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,6 +50,7 @@ public class UserController {
 
     @PutMapping("/{uid}/subscribe/{cid}")
     public ResponseEntity<?> subscribeTo(@PathVariable long uid, @PathVariable long cid) {
+        // Souscrire à un challenge
         User user = userService.getUserById(uid);
         if (user == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
@@ -63,6 +63,19 @@ public class UserController {
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Le challenge n'existe pas.");
+    }
+
+    @GetMapping("/profile/{username}")
+    public ResponseEntity<?> watchProfile(@PathVariable String username) {
+        // Consulter le profil de quelqu'un en ne renvoyant que certaines infos
+        User user = userService.getUserByUsernameOrEmail(username, null);
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
+        else if (!user.isPublic()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Ce profil n'est pas public.");
+        } else {
+            return ResponseEntity.ok(user);
+        }
     }
 
     @GetMapping(value = {"", "/", "/test"})
@@ -80,6 +93,7 @@ public class UserController {
             content += "<li>" + u.getUsername() + " - " + u.getEmail()
                     + " - ID = " + u.getId()
                     + " - public = " + u.isPublic()
+                    + " - régularité = " + u.getRegularity()
                     + "</li>";
         }
 
