@@ -22,11 +22,11 @@ public class Challenge {
      private String description;
      private boolean isReported;
 
-     @ManyToOne
+     @ManyToOne(fetch = FetchType.EAGER)
      @JoinColumn(name = "user_id")
      private User user;
 
-     @OneToMany(mappedBy = "challenge")
+     @OneToMany(mappedBy = "challenge", fetch = FetchType.EAGER)
      private Set<Progress> progresses = new HashSet<>();
 //     private Goal goal; // l'objectif du challenge (entier, booléen ...)
 

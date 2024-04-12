@@ -24,10 +24,10 @@ public class User {
 
     private boolean isPublic;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<Challenge> challenges = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<Progress> progresses = new HashSet<>();
 
     protected User() {}
