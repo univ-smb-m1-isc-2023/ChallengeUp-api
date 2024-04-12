@@ -5,6 +5,7 @@ import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.entities.Progress;
 import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.services.ChallengeService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,12 +19,10 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,13 +35,21 @@ public class ChallengeControllerTest {
 
     @Test
     public void createChallenge() throws Exception {
-        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", null);
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(challenge);
 
+        when(challengeService.createChallenge(challenge)).thenReturn(challenge);
         mockMvc.perform(post("/challenge/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
+                .andExpect(status().isCreated());
+
+        when(challengeService.createChallenge(challenge)).thenReturn(null);
+        mockMvc.perform(post("/challenge/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isCreated());
     }
 
@@ -132,5 +139,33 @@ public class ChallengeControllerTest {
         mockMvc.perform(get("/challenge/highestProgress"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", is(emptyList())));
+    }
+
+    @Test
+    public void reportChallenge() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        challenge.setReported(true);
+        long cid = challenge.getId();
+
+        when(challengeService.updateIsReportedStatus(cid, true)).thenReturn(challenge);
+        mockMvc.perform(put("/challenge/report/" + cid))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reported", is(true)));
+        verify(challengeService, times(1)).updateIsReportedStatus(cid, true);
+    }
+
+    @Test
+    public void reportChallenge_ChallengeNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        challenge.setReported(true);
+        long cid = challenge.getId();
+
+        when(challengeService.updateIsReportedStatus(cid, true))
+                .thenThrow(new EntityNotFoundException("Challenge " + cid + " inexistant."));
+        mockMvc.perform(put("/challenge/report/" + cid))
+                .andExpect(status().isNotFound());
+        verify(challengeService, times(1)).updateIsReportedStatus(cid, true);
     }
 }

@@ -44,4 +44,16 @@ public class UserService {
             userRepository.save(new User(username, email, passwordEncoder.encode(password)));
         }
     }
+
+    /**
+     * Sauvegarde l'objet utilisateur en base. Cela suppose que l'utilisateur existe déjà et qu'on a
+     * modifié quelque chose sur lui.
+     */
+    public User editUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public void toggleUserPublic(Long id) {
+        userRepository.toggleUserPublic(id);
+    }
 }

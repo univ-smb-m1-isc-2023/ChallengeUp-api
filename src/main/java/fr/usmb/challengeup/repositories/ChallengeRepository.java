@@ -12,4 +12,8 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     List<Challenge> findChallengesWithHighestProgress();
 
     List<Challenge> findByUserId(Long id);
+
+    /*@Modifying
+    @Query("UPDATE Challenge c SET c.isReported = :isReported WHERE c.id = :id")
+    void updateIsReportedStatus(@Param("id") Long id, @Param("isReported") boolean isReported);*/
 }

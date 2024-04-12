@@ -1,24 +1,29 @@
 package fr.usmb.challengeup.controllers;
 
+import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.entities.User;
+import fr.usmb.challengeup.services.ChallengeService;
 import fr.usmb.challengeup.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.hamcrest.Matchers.is;
 import static java.util.Collections.emptyList;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -28,6 +33,8 @@ public class UserControllerTest {
 
     @MockBean
     private UserService userService;
+    @MockBean
+    private ChallengeService challengeService;
 
    @Test
     public void createUser() throws Exception {
@@ -80,5 +87,134 @@ public class UserControllerTest {
         mockMvc.perform(get("/user/" + nonExistentUserId))
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));
+    }
+
+    @Test
+    public void toggleUserPublic() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+
+        assertFalse(user.isPublic());
+
+        mockMvc.perform(put("/user/public/" + uid))
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).toggleUserPublic(uid);
+    }
+
+    @Test
+    public void subscribeTo() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        long cid = challenge.getId();
+
+        when(userService.getUserById(uid)).thenReturn(user);
+        when(challengeService.getChallengeById(cid)).thenReturn(Optional.of(challenge));
+        mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void subscribeTo_ChallengeNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        long cid = challenge.getId();
+
+        when(userService.getUserById(uid)).thenReturn(user);
+        when(challengeService.getChallengeById(cid)).thenReturn(Optional.empty());
+        mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void subscribeTo_UserNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        long cid = challenge.getId();
+
+        when(userService.getUserById(uid)).thenReturn(null);
+        when(challengeService.getChallengeById(cid)).thenReturn(Optional.of(challenge));
+        mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void unsubscribeTo() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge2 = new Challenge("Boire", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge3 = new Challenge("Dormir", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Set<Challenge> list = new HashSet<>();
+        list.add(challenge); list.add(challenge2); list.add(challenge3);
+        user.setChallenges(list);
+        long uid = user.getId();
+        long cid = challenge2.getId();
+
+        when(userService.getUserById(uid)).thenReturn(user);
+        mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + cid))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void unsubscribeTo_UserNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        long uid = user.getId();
+
+        when(userService.getUserById(uid)).thenReturn(null);
+        mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + anyLong()))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Utilisateur non trouvé"));
+    }
+
+    @Test
+    public void unsubscribeTo_ChallengeNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge2 = new Challenge("Boire", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Challenge challenge3 = new Challenge("Dormir", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Set<Challenge> list = new HashSet<>();
+        user.setChallenges(list);
+        long uid = user.getId();
+        long cid = challenge2.getId();
+
+        when(userService.getUserById(uid)).thenReturn(user);
+        mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + cid))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Challenge non trouvé"));
+    }
+
+    @Test
+    public void watchProfile() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        user.setPublic(true);
+
+        when(userService.getUserByUsernameOrEmail(user.getUsername(), null)).thenReturn(user);
+        mockMvc.perform(get("/user/profile/" + user.getUsername()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username", is("Toto")));
+    }
+
+    @Test
+    public void watchProfile_UserNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+
+        when(userService.getUserByUsernameOrEmail(user.getUsername(), null)).thenReturn(null);
+        mockMvc.perform(get("/user/profile/" + user.getUsername()))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Utilisateur non trouvé"));
+    }
+
+    @Test
+    public void watchProfile_UserNotPublic() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+
+        when(userService.getUserByUsernameOrEmail(user.getUsername(), null)).thenReturn(user);
+        mockMvc.perform(get("/user/profile/" + user.getUsername()))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string("Ce profil n'est pas public."));
     }
 }

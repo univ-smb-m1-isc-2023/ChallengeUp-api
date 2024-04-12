@@ -2,8 +2,10 @@ package fr.usmb.challengeup.controllers;
 
 import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.services.ChallengeService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +43,16 @@ public class ChallengeController {
     @GetMapping("/highestProgress")
     public List<Challenge> findChallengesWithHighestProgress() {
         return challengeService.findChallengesWithHighestProgress();
+    }
+
+    @PutMapping("/report/{id}")
+    public ResponseEntity<?> reportChallenge(@PathVariable long id) {
+        try {
+            Challenge updatedChallenge = challengeService.updateIsReportedStatus(id, true);
+            return ResponseEntity.ok(updatedChallenge);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @GetMapping(value = {"", "/", "/test"})
