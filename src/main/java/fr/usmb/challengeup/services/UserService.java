@@ -37,12 +37,12 @@ public class UserService {
     /**
      * Sauvegarde un utilisateur et encode le mot de passe
      */
-    public void createUser(String username, String email, String password) {
+    public User createUser(String username, String email, String password) {
         if (CorrectFieldsUtil.isUsernameValid(username)
                 && CorrectFieldsUtil.isEmailValid(email)
                 && CorrectFieldsUtil.isPasswordValid(password)) {
-            userRepository.save(new User(username, email, passwordEncoder.encode(password)));
-        }
+            return userRepository.save(new User(username, email, passwordEncoder.encode(password)));
+        } else return null;
     }
 
     /**
