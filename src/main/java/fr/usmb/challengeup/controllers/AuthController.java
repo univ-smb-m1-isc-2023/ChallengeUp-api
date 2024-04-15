@@ -40,7 +40,7 @@ public class AuthController {
                     .status(HttpStatus.CONFLICT)
                     .body("Un utilisateur avec ce nom d'utilisateur ou cet email existe déjà");
 
-        userService.createUser(newUser.getUsername(), newUser.getEmail(), newUser.getPassword());
-        return ResponseEntity.ok("Utilisateur créé avec succès.");
+        User u = userService.createUser(newUser.getUsername(), newUser.getEmail(), newUser.getPassword());
+        return ResponseEntity.ok(u.getId());
     }
 }
