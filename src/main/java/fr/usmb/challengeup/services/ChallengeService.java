@@ -34,7 +34,7 @@ public class ChallengeService {
                 user);
 
         Challenge savedChallenge = challengeRepository.save(newChallenge);
-        createProgress(savedChallenge.getId(), user.getId());
+        progressRepository.save(new Progress(savedChallenge, user));
 
         return savedChallenge;
     }
@@ -63,17 +63,5 @@ public class ChallengeService {
                 .orElseThrow(() -> new EntityNotFoundException("Challenge " + id + " inexistant."));
         challenge.setReported(isReported);
         return challengeRepository.save(challenge);
-    }
-
-    @Transactional
-    public void createProgress(long cid, long uid) {
-        Challenge challenge = challengeRepository.findById(cid)
-                .orElseThrow(() -> new EntityNotFoundException("Challenge " + cid + " introuvable."));
-
-        User user = userRepository.findById(uid)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur " + uid + " introuvable."));
-
-        Progress progress = new Progress(challenge, user);
-        progressRepository.save(progress);
     }
 }
