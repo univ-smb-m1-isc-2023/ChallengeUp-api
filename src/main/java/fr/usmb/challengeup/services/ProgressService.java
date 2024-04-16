@@ -40,4 +40,8 @@ public class ProgressService {
         progress.setCompleted(isCompleted);
         return progressRepository.save(progress);
     }
+
+    public void deleteAllProgress() {
+        progressRepository.deleteAll();
+    }
 }

@@ -64,4 +64,9 @@ public class ProgressController {
         }
     }
 
+    @GetMapping("/delete/all")
+    public String deleteAll() {
+        progressService.deleteAllProgress();
+        return "Tous vos progrès ont été supprimés";
+    }
 }
