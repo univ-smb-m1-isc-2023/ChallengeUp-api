@@ -29,6 +29,7 @@ public class Challenge {
      private User user;
 
      @OneToMany(mappedBy = "challenge")
+     @JsonIgnore
      private Set<Progress> progresses = new HashSet<>();
 //     private Goal goal; // l'objectif du challenge (entier, booléen ...)
 
