@@ -65,7 +65,7 @@ public class ChallengeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title", is("Manger")))
                 .andExpect(jsonPath("$[1].title", is("Boire")))
-                .andExpect(jsonPath("$[1].user.username", is("Toto")))
+                // .andExpect(jsonPath("$[1].user.username", is("Toto"))) // avant le @JsonIgnore
                 .andExpect(jsonPath("$[2].title", is("Dormir")));
     }
 
@@ -91,7 +91,7 @@ public class ChallengeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title", is("Manger")))
                 .andExpect(jsonPath("$[1].title", is("Boire")))
-                .andExpect(jsonPath("$[1].user.username", is("Toto")))
+                // .andExpect(jsonPath("$[1].user.username", is("Toto"))) avant le @JsonIgnore
                 .andExpect(jsonPath("$[2].title", is("Dormir")));
     }
 

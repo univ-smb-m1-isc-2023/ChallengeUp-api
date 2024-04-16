@@ -1,4 +1,5 @@
 package fr.usmb.challengeup.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -24,6 +25,7 @@ public class Challenge {
 
      @ManyToOne
      @JoinColumn(name = "user_id")
+     @JsonIgnore
      private User user;
 
      @OneToMany(mappedBy = "challenge")

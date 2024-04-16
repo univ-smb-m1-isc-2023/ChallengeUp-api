@@ -1,5 +1,6 @@
 package fr.usmb.challengeup.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -25,9 +26,11 @@ public class User {
     private boolean isPublic;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<Challenge> challenges = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<Progress> progresses = new HashSet<>();
 
     protected User() {}
