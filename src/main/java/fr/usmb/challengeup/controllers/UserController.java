@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -18,7 +19,6 @@ import java.util.Set;
 public class UserController {
     @Autowired
     private final UserService userService;
-
     @Autowired
     private final ChallengeService challengeService;
 
@@ -128,6 +128,22 @@ public class UserController {
         }
 
         content += "</ul>";
+
+        if (challengeService.getAllChallenges().isEmpty()) {
+            List<Challenge> challengeList = new ArrayList<>();
+            User u = userService.getUserByUsernameOrEmail("titi", null);
+            challengeList.add(new Challenge("Faire marcher le serveur","Sport", Challenge.Periodicity.QUOTIDIEN, "Faire le tour du pâté de maison...", u));
+            challengeList.add(new Challenge("Lire 50 pages par jour","Culture", Challenge.Periodicity.QUOTIDIEN, "Choisissez un livre et lisez 50 pages chaque jour.", u));
+            challengeList.add(new Challenge("Méditer pendant 15 minutes","Sport", Challenge.Periodicity.QUOTIDIEN, "Trouvez un endroit calme et méditez pendant 15 minutes.", u));
+            challengeList.add(new Challenge("Apprendre une nouvelle recette","Cuisine", Challenge.Periodicity.HEBDOMADAIRE, "Choisissez une recette que vous n'avez jamais essayée et apprenez à la cuisiner.", u));
+            challengeList.add(new Challenge("Écrire un journal","Culture", Challenge.Periodicity.QUOTIDIEN, "Prenez le temps de réfléchir à votre journée et écrivez vos pensées dans un journal.", u));
+            challengeList.add(new Challenge("Faire 10000 pas","Sport", Challenge.Periodicity.QUOTIDIEN, "Marchez ou courez jusqu'à atteindre 10000 pas.", u));
+            challengeList.add(new Challenge("Apprendre une nouvelle langue","Culture", Challenge.Periodicity.MENSUEL, "Choisissez une langue que vous aimeriez apprendre et consacrez du temps chaque jour à son apprentissage.", u));
+
+            for (Challenge c : challengeList) {
+                challengeService.createChallenge(c);
+            }
+        }
 
         return content;
     }
