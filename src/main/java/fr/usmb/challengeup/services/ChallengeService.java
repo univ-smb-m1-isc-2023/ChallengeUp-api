@@ -25,7 +25,8 @@ public class ChallengeService {
 
     @Transactional
     public Challenge createChallenge(Challenge challenge) {
-        User user = userRepository.findByUsername(challenge.getUser().getUsername());
+        User user = userRepository.findById(challenge.getUser().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur " + challenge.getUser().getId() + " introuvable."));
         Challenge newChallenge = new Challenge(challenge.getTitle(),
                 challenge.getTag(),
                 challenge.getPeriodicity(),
