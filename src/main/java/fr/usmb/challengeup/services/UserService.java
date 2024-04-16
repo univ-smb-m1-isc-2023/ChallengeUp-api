@@ -56,4 +56,8 @@ public class UserService {
     public void toggleUserPublic(Long id) {
         userRepository.toggleUserPublic(id);
     }
+
+    public void deleteUserById(Long id) {
+        userRepository.deleteById(id);
+    }
 }

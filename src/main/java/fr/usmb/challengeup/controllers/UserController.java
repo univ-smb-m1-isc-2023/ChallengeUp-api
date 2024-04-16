@@ -102,6 +102,12 @@ public class UserController {
         }
     }
 
+    @GetMapping("/delete/{id}")
+    public String deleteUserById(@PathVariable Long id) {
+        userService.deleteUserById(id);
+        return "L'utilisateur " + id + " a été supprimé";
+    }
+
     @GetMapping(value = {"", "/", "/test"})
     public String test() {
         String content = "";
