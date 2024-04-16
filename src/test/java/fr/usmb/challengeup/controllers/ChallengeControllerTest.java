@@ -171,7 +171,7 @@ public class ChallengeControllerTest {
 
     @Test
     public void deleteAll() throws Exception {
-        mockMvc.perform(get("/challenge/delete/all"))
+        mockMvc.perform(delete("/challenge/delete/all"))
                 .andExpect(status().isOk());
 
         verify(challengeService, times(1)).deleteAllChallenges();
