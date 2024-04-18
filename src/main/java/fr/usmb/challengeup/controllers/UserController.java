@@ -1,8 +1,10 @@
 package fr.usmb.challengeup.controllers;
 
 import fr.usmb.challengeup.entities.Challenge;
+import fr.usmb.challengeup.entities.Progress;
 import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.services.ChallengeService;
+import fr.usmb.challengeup.services.ProgressService;
 import fr.usmb.challengeup.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,10 +23,13 @@ public class UserController {
     private final UserService userService;
     @Autowired
     private final ChallengeService challengeService;
+    @Autowired
+    private  final ProgressService progressService;
 
-    public UserController(UserService userService, ChallengeService challengeService) {
+    public UserController(UserService userService, ChallengeService challengeService, ProgressService progressService) {
         this.userService = userService;
         this.challengeService = challengeService;
+        this.progressService = progressService;
     }
 
     @PostMapping("/create")
@@ -59,6 +64,9 @@ public class UserController {
         if (challengeOptional.isPresent()) {
             challenges.add(challengeOptional.get());
             user.setChallenges(challenges);
+            // Création d'un progrès pour l'utilisateur sur ce challenge
+            Progress progress = new Progress(challengeOptional.get(), user);
+            progressService.createProgress(progress);
             return ResponseEntity.ok(userService.editUser(user));
         }
 
@@ -84,6 +92,11 @@ public class UserController {
             else {
                 userChallenges.remove(challengeToRemove);
                 user.setChallenges(userChallenges);
+                // Suppression du progrès associé au challenge
+                Progress progressToDelete = progressService.getProgressByUserIdAndChallengeId(user.getId(), challengeToRemove.getId());
+                if (progressToDelete != null) {
+                    progressService.deleteProgressById(progressToDelete.getId());
+                }
                 return ResponseEntity.ok(userService.editUser(user));
             }
         }
