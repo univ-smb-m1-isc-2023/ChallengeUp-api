@@ -37,11 +37,9 @@ public class UserService {
     }
 
     public Set<Challenge> getChallengesByUserId(long userId) {
-        // Récupérer l'utilisateur à partir de son ID
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User id " + userId + " not found."));
 
-        // Retourner la liste des challenges de l'utilisateur
         return user.getChallenges();
     }
 
