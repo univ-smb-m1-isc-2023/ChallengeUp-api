@@ -2,6 +2,7 @@ package fr.usmb.challengeup.bot;
 
 import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.services.UserService;
+import fr.usmb.challengeup.services.ChallengeService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -14,6 +15,9 @@ import net.dv8tion.jda.api.entities.User;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+// import java.util.Optional;
 
 import javax.security.auth.login.LoginException;
 
@@ -28,8 +32,18 @@ public class DiscordBot extends ListenerAdapter {
     private Map<Long, Integer> tupleSpace = new HashMap<>();
     @Autowired
     private UserService userService;
+    @Autowired
+    private ChallengeService challengeService; // Ajoutez cette ligne
     private ArrayList<String> oui = new ArrayList<>();
     private ArrayList<String> non = new ArrayList<>();
+
+
+
+    // Autres méthodes de classe
+
+    public List<Challenge> getChallengeById(long userId) {
+        return challengeService.getChallengesByUserId(userId);
+    }
 
     public static void main(String[] args) throws LoginException {
         JDABuilder.createDefault("")
@@ -87,6 +101,15 @@ public class DiscordBot extends ListenerAdapter {
         });
     }
 
+    public static ArrayList<Challenge> setToArrayList(Set<Challenge> c) {
+        // Créer une nouvelle ArrayList pour stocker les challenges
+        ArrayList<Challenge> challengeList = new ArrayList<>(c.size());
+        for (Challenge challenge : c) {
+            challengeList.add(challenge);
+        }
+        return challengeList;
+    }
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         initializeSomeVariables();
@@ -111,10 +134,14 @@ public class DiscordBot extends ListenerAdapter {
         });
         */
 
-        ArrayList<String> challenges = getListChallenges(author.getId());
-        challenges.add("Faire les courses");
-        challenges.add("Faire le menage");
-        challenges.add("Faire a manger");
+        Challenge challengetest = new Challenge("Le titre", "le tag", null, "Ceci est la description du challenge", null);
+
+        // ArrayList<String> challenges = getListChallenges(author.getId());
+        ArrayList<Challenge> challenges = setToArrayList(userService.getChallengesByUserId(Long.parseLong(author.getId())));
+        challenges.add(challengetest);
+        // challenges.add("Faire les courses");
+        // challenges.add("Faire le menage");
+        // challenges.add("Faire a manger");
 
         if (!tupleSpace.containsKey(Long.valueOf(author.getId()))){
             if (message.equalsIgnoreCase("!start")) {
@@ -128,7 +155,7 @@ public class DiscordBot extends ListenerAdapter {
                 author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Voici vos challenges en attente et votre ID : " + author.getId())).queue();
                 for (int i = 0; i < challenges.size(); i++){
                     int finalI = i;
-                    author.openPrivateChannel().flatMap(teste -> teste.sendMessage((finalI+1) + " : " + challenges.get(finalI) )).queue();
+                    author.openPrivateChannel().flatMap(teste -> teste.sendMessage((finalI+1) + " : " + challenges.get(finalI).getTitle() )).queue();
                 }
                 author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Avez vous des challenges à valider ?")).queue();
                 tupleSpace.put(Long.valueOf(author.getId()), 1);
@@ -160,7 +187,7 @@ public class DiscordBot extends ListenerAdapter {
                         author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Très bien, lequel voulez vous valider ? (tapez 0 si vous n'en avez pas)")).queue();
                         for (int i = 0; i < challenges.size(); i++){
                             int finalI = i;
-                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage((finalI+1) + " : " + challenges.get(finalI) )).queue();
+                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage((finalI+1) + " : " + challenges.get(finalI).getTitle() )).queue();
                         }
                     }
                     else {
@@ -180,11 +207,14 @@ public class DiscordBot extends ListenerAdapter {
                             challenges.remove(number-1);
                             for (int i = 0; i < challenges.size(); i++){
                                 int finalI = i;
-                                author.openPrivateChannel().flatMap(teste -> teste.sendMessage((finalI+1) + " : " + challenges.get(finalI) )).queue();
+                                author.openPrivateChannel().flatMap(teste -> teste.sendMessage((finalI+1) + " : " + challenges.get(finalI).getTitle() )).queue();
                             }
                             author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Souhaitez vous toujours valider des challenges ?")).queue();
                             tupleSpace.put(Long.valueOf(author.getId()), 1);
                             validateChallenges(author.getId(), number);
+                        }
+                        else {
+                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Veuillez rentrer un nombre compris entre 1 et " + challenges.size() + " (ou 0 si vous avez changer d'avis)")).queue();
                         }
                     } catch (NumberFormatException e) {
                         author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Veuillez rentrer un nombre compris entre 1 et " + challenges.size() + " (ou 0 si vous avez changer d'avis)")).queue();

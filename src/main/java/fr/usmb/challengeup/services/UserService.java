@@ -1,5 +1,6 @@
 package fr.usmb.challengeup.services;
 
+import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.exceptions.UserNotFoundException;
 import fr.usmb.challengeup.repositories.UserRepository;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -32,6 +34,13 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public Set<Challenge> getChallengesByUserId(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User id " + userId + " not found."));
+
+        return user.getChallenges();
     }
 
     /**

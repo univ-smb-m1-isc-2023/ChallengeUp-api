@@ -62,6 +62,21 @@ class AuthControllerTest {
     }
 
     @Test
+    public void signUp_CreationFail() throws Exception {
+        String username = "titi";
+        String email = "titi@mail.com";
+        String password = "mot_de_passe";
+
+        when(userService.getUserByUsernameOrEmail(username, email)).thenReturn(null);
+        when(userService.createUser(username, email, password)).thenReturn(null);
+        mockMvc.perform(post("/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"" + username + "\",\"email\":\"" + email + "\",\"password\":\"" + password + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Les informations fournies ne sont pas valides"));
+    }
+
+    @Test
     public void login() throws Exception {
         String username = "Toto";
         String email = "toto@mail.com";
@@ -97,7 +112,6 @@ class AuthControllerTest {
         String username = "Toto";
         String email = "toto@mail.com";
         String password = "password";
-        User user = new User(username, email, passwordEncoder.encode(password));
 
         when(userService.getUserByUsernameOrEmail(username, email)).thenReturn(null);
         mockMvc.perform(post("/auth/login")

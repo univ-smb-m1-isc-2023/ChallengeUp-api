@@ -41,6 +41,11 @@ public class AuthController {
                     .body("Un utilisateur avec ce nom d'utilisateur ou cet email existe déjà");
 
         User u = userService.createUser(newUser.getUsername(), newUser.getEmail(), newUser.getPassword());
-        return ResponseEntity.ok(u.getId());
+        if (u == null)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Les informations fournies ne sont pas valides");
+
+        return ResponseEntity.ok(String.valueOf(u.getId()));
     }
 }
