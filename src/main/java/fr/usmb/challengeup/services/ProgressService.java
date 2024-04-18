@@ -29,6 +29,10 @@ public class ProgressService {
 
     public List<Progress> getProgressesByChallengeId(long cid) { return progressRepository.findByChallengeId(cid); }
 
+    public void deleteProgressById(Long id) {
+        progressRepository.deleteById(id);
+    }
+
     /**
      * Récupère le progrès associé à un utilisateur sur un challenge spécifique
      */

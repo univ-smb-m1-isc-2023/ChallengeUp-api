@@ -1,8 +1,10 @@
 package fr.usmb.challengeup.controllers;
 
 import fr.usmb.challengeup.entities.Challenge;
+import fr.usmb.challengeup.entities.Progress;
 import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.services.ChallengeService;
+import fr.usmb.challengeup.services.ProgressService;
 import fr.usmb.challengeup.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,8 @@ public class UserControllerTest {
     private UserService userService;
     @MockBean
     private ChallengeService challengeService;
+    @MockBean
+    private ProgressService progressService;
 
    @Test
     public void createUser() throws Exception {
@@ -113,6 +117,7 @@ public class UserControllerTest {
         when(challengeService.getChallengeById(cid)).thenReturn(Optional.of(challenge));
         mockMvc.perform(put("/user/" + uid + "/subscribe/" + cid))
                 .andExpect(status().isOk());
+        verify(progressService, times(1)).createProgress(any(Progress.class));
     }
 
     @Test
@@ -152,10 +157,13 @@ public class UserControllerTest {
         user.setChallenges(list);
         long uid = user.getId();
         long cid = challenge2.getId();
+        Progress progress = new Progress(challenge2, user);
 
         when(userService.getUserById(uid)).thenReturn(user);
+        when(progressService.getProgressByUserIdAndChallengeId(uid, cid)).thenReturn(progress);
         mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + cid))
                 .andExpect(status().isOk());
+        verify(progressService, times(1)).deleteProgressById(progress.getId());
     }
 
     @Test
