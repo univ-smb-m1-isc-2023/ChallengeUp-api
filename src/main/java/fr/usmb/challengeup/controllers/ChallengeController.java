@@ -55,6 +55,16 @@ public class ChallengeController {
         }
     }
 
+    @PutMapping("/unreport/{id}")
+    public ResponseEntity<?> unreportChallenge(@PathVariable long id) {
+        try {
+            Challenge updatedChallenge = challengeService.updateIsReportedStatus(id, false);
+            return ResponseEntity.ok(updatedChallenge);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping(value = {"", "/", "/test"})
     public String test() {
         return "<h1>Bienvenue dans le controller des challenges </h1>";

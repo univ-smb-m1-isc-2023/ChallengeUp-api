@@ -170,6 +170,32 @@ public class ChallengeControllerTest {
     }
 
     @Test
+    public void unreportChallenge() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        long cid = challenge.getId();
+
+        when(challengeService.updateIsReportedStatus(cid, false)).thenReturn(challenge);
+        mockMvc.perform(put("/challenge/unreport/" + cid))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reported", is(false)));
+        verify(challengeService, times(1)).updateIsReportedStatus(cid, false);
+    }
+
+    @Test
+    public void unreportChallenge_ChallengeNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        long cid = challenge.getId();
+
+        when(challengeService.updateIsReportedStatus(cid, false))
+                .thenThrow(new EntityNotFoundException("Challenge " + cid + " inexistant."));
+        mockMvc.perform(put("/challenge/unreport/" + cid))
+                .andExpect(status().isNotFound());
+        verify(challengeService, times(1)).updateIsReportedStatus(cid, false);
+    }
+
+    @Test
     public void deleteAll() throws Exception {
         mockMvc.perform(delete("/challenge/delete/all"))
                 .andExpect(status().isOk());
