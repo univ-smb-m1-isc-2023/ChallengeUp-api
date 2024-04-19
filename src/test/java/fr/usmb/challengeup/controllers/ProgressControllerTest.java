@@ -175,4 +175,53 @@ public class ProgressControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("L'édition du progrès a échoué."));
     }
+
+    @Test
+    public void updateProgressCompletedByUidAndCid() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress progress = new Progress(challenge, user);
+        long uid = user.getId();
+        long cid = challenge.getId();
+        assertFalse(progress.isCompleted());
+
+        when(progressService.getProgressByUserIdAndChallengeId(uid, cid)).thenReturn(progress);
+        when(progressService.setIsCompleted(progress, true)).thenReturn(progress);
+        progress.setCompleted(true);
+        mockMvc.perform(put("/progress/complete/" + uid + "/" + cid + "/" + true))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.completed", is(true)));
+    }
+
+    @Test
+    public void updateProgressCompletedByUidAndCid_ProgressNotFound() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress progress = new Progress(challenge, user);
+        long uid = user.getId();
+        long cid = challenge.getId();
+        assertFalse(progress.isCompleted());
+
+        when(progressService.getProgressByUserIdAndChallengeId(uid, cid)).thenReturn(null);
+        mockMvc.perform(put("/progress/complete/" + uid + "/" + cid + "/" + true))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Aucun progrès pour ce challenge."));
+    }
+
+    @Test
+    public void updateProgressCompletedByUidAndCid_EditionFailed() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        Progress progress = new Progress(challenge, user);
+        long uid = user.getId();
+        long cid = challenge.getId();
+        assertFalse(progress.isCompleted());
+
+        when(progressService.getProgressByUserIdAndChallengeId(uid, cid)).thenReturn(progress);
+        when(progressService.setIsCompleted(progress, true)).thenReturn(null);
+        mockMvc.perform(put("/progress/complete/" + uid + "/" + cid + "/" + true))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("L'édition du progrès a échoué."));
+    }
 }

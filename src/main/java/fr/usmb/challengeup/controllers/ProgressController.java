@@ -64,6 +64,19 @@ public class ProgressController {
         }
     }
 
+    @PutMapping("/complete/{uid}/{cid}/{isCompleted}")
+    public ResponseEntity<?> updateProgressCompletedByUidAndCid(@PathVariable long uid, @PathVariable long cid, @PathVariable boolean isCompleted) {
+        Progress progress = progressService.getProgressByUserIdAndChallengeId(uid, cid);
+        if (progress == null)
+            return new ResponseEntity<>("Aucun progrès pour ce challenge.", HttpStatus.NOT_FOUND);
+        else {
+            Progress editedProgress = progressService.setIsCompleted(progress, isCompleted);
+            if (editedProgress == null)
+                return new ResponseEntity<>("L'édition du progrès a échoué.", HttpStatus.INTERNAL_SERVER_ERROR);
+            else return ResponseEntity.ok(editedProgress);
+        }
+    }
+
     @DeleteMapping("/delete/all")
     public String deleteAll() {
         progressService.deleteAllProgress();
