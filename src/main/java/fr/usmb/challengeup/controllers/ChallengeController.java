@@ -1,7 +1,9 @@
 package fr.usmb.challengeup.controllers;
 
 import fr.usmb.challengeup.entities.Challenge;
+import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.services.ChallengeService;
+import fr.usmb.challengeup.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,14 +18,19 @@ import java.util.Optional;
 public class ChallengeController {
     @Autowired
     private final ChallengeService challengeService;
+    @Autowired
+    private final UserService userService;
 
-    public ChallengeController(ChallengeService challengeService) {
+    public ChallengeController(ChallengeService challengeService, UserService userService) {
         this.challengeService = challengeService;
+        this.userService = userService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/create/{uid}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Challenge createChallenge(@RequestBody Challenge challenge) {
+    public Challenge createChallenge(@RequestBody Challenge challenge, @PathVariable long uid) {
+        User user = userService.getUserById(uid);
+        challenge.setUser(user);
         return challengeService.createChallenge(challenge);
     }
 

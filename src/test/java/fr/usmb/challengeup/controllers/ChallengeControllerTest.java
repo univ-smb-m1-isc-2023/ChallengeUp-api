@@ -5,6 +5,7 @@ import fr.usmb.challengeup.entities.Challenge;
 import fr.usmb.challengeup.entities.Progress;
 import fr.usmb.challengeup.entities.User;
 import fr.usmb.challengeup.services.ChallengeService;
+import fr.usmb.challengeup.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ public class ChallengeControllerTest {
 
     @MockBean
     private ChallengeService challengeService;
+    @MockBean
+    private UserService userService;
 
     @Test
     public void createChallenge() throws Exception {
@@ -41,13 +44,22 @@ public class ChallengeControllerTest {
         String json = objectMapper.writeValueAsString(challenge);
 
         when(challengeService.createChallenge(challenge)).thenReturn(challenge);
-        mockMvc.perform(post("/challenge/create")
+        when(userService.getUserById(user.getId())).thenReturn(user);
+        mockMvc.perform(post("/challenge/create/" + user.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void createChallenge_CreationFailed() throws Exception {
+        User user = new User("Toto", "toto@mail.com", "passwordCool*");
+        Challenge challenge = new Challenge("Manger", "Sport", Challenge.Periodicity.MENSUEL, "blabla", user);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(challenge);
 
         when(challengeService.createChallenge(challenge)).thenReturn(null);
-        mockMvc.perform(post("/challenge/create")
+        mockMvc.perform(post("/challenge/create/" + user.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated());
