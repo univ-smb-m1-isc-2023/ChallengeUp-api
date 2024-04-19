@@ -160,6 +160,7 @@ public class UserControllerTest {
         Progress progress = new Progress(challenge2, user);
 
         when(userService.getUserById(uid)).thenReturn(user);
+        when(challengeService.getChallengeById(cid)).thenReturn(Optional.of(challenge2));
         when(progressService.getProgressByUserIdAndChallengeId(uid, cid)).thenReturn(progress);
         mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + cid))
                 .andExpect(status().isOk());
@@ -189,6 +190,7 @@ public class UserControllerTest {
         long cid = challenge2.getId();
 
         when(userService.getUserById(uid)).thenReturn(user);
+        when(challengeService.getChallengeById(cid)).thenReturn(Optional.empty());
         mockMvc.perform(put("/user/" + uid + "/unsubscribe/" + cid))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Challenge non trouvé"));

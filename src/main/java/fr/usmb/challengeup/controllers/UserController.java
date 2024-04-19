@@ -59,15 +59,12 @@ public class UserController {
         User user = userService.getUserById(uid);
         if (user == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
-        Set<Challenge> challenges = user.getChallenges();
         Optional<Challenge> challengeOptional = challengeService.getChallengeById(cid);
         if (challengeOptional.isPresent()) {
-            challenges.add(challengeOptional.get());
-            user.setChallenges(challenges);
             // Création d'un progrès pour l'utilisateur sur ce challenge
             Progress progress = new Progress(challengeOptional.get(), user);
             progressService.createProgress(progress);
-            return ResponseEntity.ok(userService.editUser(user));
+            return ResponseEntity.ok(user);
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Le challenge n'existe pas.");
@@ -79,26 +76,17 @@ public class UserController {
         if (user == null)
             return new ResponseEntity<>("Utilisateur non trouvé", HttpStatus.NOT_FOUND);
         else {
-            Challenge challengeToRemove = null;
-            Set<Challenge> userChallenges = user.getChallenges();
-            for (Challenge c : userChallenges) {
-                if (c.getId() == cid) {
-                    challengeToRemove = c;
-                    break;
-                }
-            }
-            if (challengeToRemove == null)
-                return new ResponseEntity<>("Challenge non trouvé", HttpStatus.NOT_FOUND);
-            else {
-                userChallenges.remove(challengeToRemove);
-                user.setChallenges(userChallenges);
+            Optional<Challenge> challengeOptional = challengeService.getChallengeById(cid);
+            if (challengeOptional.isPresent()) {
                 // Suppression du progrès associé au challenge
-                Progress progressToDelete = progressService.getProgressByUserIdAndChallengeId(user.getId(), challengeToRemove.getId());
+                Challenge challenge = challengeOptional.get();
+                Progress progressToDelete = progressService.getProgressByUserIdAndChallengeId(user.getId(), challenge.getId());
                 if (progressToDelete != null) {
                     progressService.deleteProgressById(progressToDelete.getId());
                 }
-                return ResponseEntity.ok(userService.editUser(user));
+                return ResponseEntity.ok(user);
             }
+            else return new ResponseEntity<>("Challenge non trouvé", HttpStatus.NOT_FOUND);
         }
     }
 
