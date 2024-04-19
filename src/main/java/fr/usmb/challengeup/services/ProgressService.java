@@ -5,6 +5,7 @@ import fr.usmb.challengeup.repositories.ProgressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +43,7 @@ public class ProgressService {
 
     public Progress setIsCompleted(Progress progress, boolean isCompleted) {
         progress.setCompleted(isCompleted);
+        if (isCompleted) progress.setDate(new Date());
         return progressRepository.save(progress);
     }
 
