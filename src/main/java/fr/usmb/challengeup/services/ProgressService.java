@@ -34,6 +34,10 @@ public class ProgressService {
         progressRepository.deleteById(id);
     }
 
+    public Progress editProgress(Progress progress) {
+        return progressRepository.save(progress);
+    }
+
     /**
      * Récupère le progrès associé à un utilisateur sur un challenge spécifique
      */
