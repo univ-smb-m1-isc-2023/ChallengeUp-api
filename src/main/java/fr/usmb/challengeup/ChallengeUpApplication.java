@@ -4,6 +4,7 @@ import fr.usmb.challengeup.bot.DiscordBot;
 import jakarta.annotation.PostConstruct;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,8 @@ import javax.security.auth.login.LoginException;
 public class ChallengeUpApplication {
 	@Value("${DISCORD_TOKEN:defaultValue}")
 	private String discordToken;
+	@Autowired
+	private DiscordBot discordBot;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ChallengeUpApplication.class, args);
@@ -27,8 +30,8 @@ public class ChallengeUpApplication {
 	public void startBot() throws LoginException {
 		if (!discordToken.equals("defaultValue")) {
 			JDABuilder.createDefault(discordToken)
-					.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
-					.addEventListeners(new DiscordBot())
+					.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.DIRECT_MESSAGES)
+					.addEventListeners(discordBot)
 					.build();
 		}
 	}

@@ -1,6 +1,8 @@
 package fr.usmb.challengeup.bot;
 
 import fr.usmb.challengeup.entities.Challenge;
+import fr.usmb.challengeup.entities.Progress;
+import fr.usmb.challengeup.services.ProgressService;
 import fr.usmb.challengeup.services.UserService;
 import fr.usmb.challengeup.services.ChallengeService;
 import net.dv8tion.jda.api.JDA;
@@ -22,18 +24,24 @@ import java.util.Set;
 import javax.security.auth.login.LoginException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 /* import java.util.concurrent.TimeUnit; */
 
+@Component
 public class DiscordBot extends ListenerAdapter {
 
     private boolean waitingForConfirmation = false;
     private Map<Long, Integer> tupleSpace = new HashMap<>();
+    private JDA jda;
     @Autowired
     private UserService userService;
     @Autowired
-    private ChallengeService challengeService; // Ajoutez cette ligne
+    private ChallengeService challengeService;
+    @Autowired
+    private ProgressService progressService;
     private static ArrayList<String> oui = new ArrayList<>();
     private static ArrayList<String> non = new ArrayList<>();
     private static ArrayList<Challenge> challenges = new ArrayList<Challenge>();
@@ -85,12 +93,22 @@ public class DiscordBot extends ListenerAdapter {
         // Va retirer le Challenge à l'indice indiceChallenge
     }
 
-    public void sendPrivateMessage(JDA jda, String userId, String content) {
+    public void sendPrivateMessage(String userId, String content) {
         jda.retrieveUserById(userId).queue((user) -> {
             user.openPrivateChannel().queue((channel) -> {
                 channel.sendMessage(content).queue();
             });
         });
+    }
+
+    public List<Challenge> getChallengesNotCompletedByUserId(long uid) {
+        List<Progress> progressList = progressService.getProgressesByUserId(uid);
+        List<Challenge> challengesNotCompleted = new ArrayList<>();
+        for (Progress progress : progressList) {
+            if (!progress.isCompleted()) // simulation de !isChallengeCompleted de ProgressChecker
+                challengesNotCompleted.add(progress.getChallenge());
+        }
+        return challengesNotCompleted;
     }
 
     public static ArrayList<Challenge> setToArrayList(Set<Challenge> c) {
@@ -109,6 +127,8 @@ public class DiscordBot extends ListenerAdapter {
         String message = event.getMessage().getContentRaw();
         MessageChannel channel = event.getChannel();
         User author = event.getAuthor();
+        String authorId = author.getId();
+        jda = event.getJDA();
 
 
         //System.out.println("Auteur : " + author + " Message : " + message);
@@ -151,7 +171,7 @@ public class DiscordBot extends ListenerAdapter {
                 //     System.out.println(listUser.get(i));
                 // }
                 waitingForConfirmation = true;
-                if (challenges.size()>0){
+                if (!challenges.isEmpty()){
                     author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Voici vos challenges en attente et votre ID : " + author.getId())).queue();
                     for (int i = 0; i < challenges.size(); i++){
                         int finalI = i;
@@ -161,6 +181,13 @@ public class DiscordBot extends ListenerAdapter {
                     tupleSpace.put(Long.valueOf(author.getId()), 1);
                 }
                 else{
+                    sendPrivateMessage(authorId, "Voici vos challenges non complétés : ");
+                    long fakeUserId = 1;
+                    List<Challenge> challengesNotCompleted = getChallengesNotCompletedByUserId(fakeUserId);
+                    for (int i = 0; i < challengesNotCompleted.size(); i++) {
+                        Challenge challenge = challengesNotCompleted.get(i);
+                        sendPrivateMessage(author.getId(), (i + 1) + " - " + challenge.getTitle());
+                    }
                     author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Vous êtes actuellement à jour sur vos challenges. Bravo :thumbsup: !!!")).queue();
                     tupleSpace.remove(Long.valueOf(author.getId()));
                 }

@@ -48,7 +48,7 @@ public class ProgressChecker {
         }
     }
 
-    private boolean isChallengeCompleted(Challenge challenge, Date lc) {
+    protected boolean isChallengeCompleted(Challenge challenge, Date lc) {
         Calendar now = Calendar.getInstance();
         Calendar lastCompletion = Calendar.getInstance();
         now.setTime(new Date());
