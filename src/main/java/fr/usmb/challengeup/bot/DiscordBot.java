@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.entities.User;
@@ -18,7 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.Timer;
+import java.util.TimerTask;
 // import java.util.Optional;
 
 import javax.security.auth.login.LoginException;
@@ -45,6 +47,7 @@ public class DiscordBot extends ListenerAdapter {
     private static ArrayList<String> oui = new ArrayList<>();
     private static ArrayList<String> non = new ArrayList<>();
     private static ArrayList<Challenge> challenges = new ArrayList<Challenge>();
+    private static String bottoken = "";
 
     // Autres méthodes de classe
 
@@ -136,6 +139,7 @@ public class DiscordBot extends ListenerAdapter {
         //User author2 = event.getJDA().getUserById(524296395306565653); //martin
         // User author2 = event.getJDA().getUserById(312898934869590016L); //julien
         // User a = (User) event.getJDA().retrieveUserById(524296395306565653L);
+        // User a = (User) event.getJDA().retrieveUserById(692668155327152149);
         // System.out.println(a);
 
         //sendPrivateMessage(event.getJDA(), "524296395306565653", "prout");
@@ -147,20 +151,9 @@ public class DiscordBot extends ListenerAdapter {
         });
         */
 
-        
-            //// Ancienne version du tableau
-            // ArrayList<String> challenges = getListChallenges(author.getId());
-
-            //Challenge challengetest = new Challenge("Le titre", "le tag", null, "Ceci est la description du challenge", null);
-
-            // ArrayList<Challenge> challenges = setToArrayList(userService.getChallengesByUserId(Long.parseLong(author.getId())));
-
-            // ArrayList<Challenge> challenges = new ArrayList<Challenge>();
-            // challenges.add(challengetest);
-
-            // challenges.add("Faire les courses");
-            // challenges.add("Faire le menage");
-            // challenges.add("Faire a manger");
+        //// Version à implementer quand on pourra recuperer les challenges d'un User (a decommenter ici)
+        // challenges.clear();
+        // challenges = setToArrayList(userService.getChallengesByUserId(Long.parseLong(author.getId())));
 
         if (!tupleSpace.containsKey(Long.valueOf(author.getId()))){
             if (message.equalsIgnoreCase("!start")) {
@@ -261,14 +254,40 @@ public class DiscordBot extends ListenerAdapter {
         //System.out.println(tupleSpace);
     }
 
+    @Override
+    public void onReady(ReadyEvent event) {
+        JDA jda = event.getJDA(); // Récupération de l'instance JDA
+        // User user = jda.retrieveUserById(692668155327152149L).complete(); // ID de l'utilisateur Théo
+        User user = jda.retrieveUserById(524296395306565653L).complete(); // ID de l'utilisateur Julien
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (user != null) {
+                    user.openPrivateChannel().queue(privateChannel -> {
+                        privateChannel.sendMessage("Bonjour  " + user.getAsTag() + ", ceci est un message automatique qui vous rappel que vous avez toujours des challenges en cours. Souhaitez vous en valider quelques un ?").queue();
+                        tupleSpace.put(Long.valueOf(user.getId()), 1);
+                    });
+                } else {
+                    System.out.println("Utilisateur non trouvé.");
+                }
+            }
+        }, 0, 1 * 60 * 1000);
+
+
+    }
+
     public static void main(String[] args) throws LoginException {
         Challenge challengetest = new Challenge("Le titre", "le tag", null, "Ceci est la description du challenge", null);
         challenges.add(challengetest);
+        challenges.add(challengetest);
+        challenges.add(challengetest);
         initializeSomeVariables();
-        JDABuilder.createDefault("")
-                .enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
-                .addEventListeners(new DiscordBot())
-                .build();
+        JDABuilder builder = JDABuilder.createDefault(bottoken);
+        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
+            .addEventListeners(new DiscordBot())
+            .build();
     }
 
 }
