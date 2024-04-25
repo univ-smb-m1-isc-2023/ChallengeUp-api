@@ -151,9 +151,9 @@ public class DiscordBot extends ListenerAdapter {
         });
         */
 
-        //// Version à implementer quand on pourra recuperer les challenges d'un User (a decommenter ici)
-        // challenges.clear();
-        // challenges = setToArrayList(userService.getChallengesByUserId(Long.parseLong(author.getId())));
+        // Version à implementer quand on pourra recuperer les challenges d'un User (a decommenter ici)
+        challenges.clear();
+        challenges = setToArrayList(userService.getChallengesByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */));
 
         if (!tupleSpace.containsKey(Long.valueOf(author.getId()))){
             if (message.equalsIgnoreCase("!start")) {
@@ -256,24 +256,32 @@ public class DiscordBot extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        JDA jda = event.getJDA(); // Récupération de l'instance JDA
+        JDA jda = event.getJDA();
         // User user = jda.retrieveUserById(692668155327152149L).complete(); // ID de l'utilisateur Théo
         User user = jda.retrieveUserById(524296395306565653L).complete(); // ID de l'utilisateur Julien
+        // List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(user.getIdLong());
+        List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */);
+        int minutes = 5;
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (user != null) {
-                    user.openPrivateChannel().queue(privateChannel -> {
-                        privateChannel.sendMessage("Bonjour  " + user.getAsTag() + ", ceci est un message automatique qui vous rappel que vous avez toujours des challenges en cours. Souhaitez vous en valider quelques un ?").queue();
-                        tupleSpace.put(Long.valueOf(user.getId()), 1);
-                    });
-                } else {
-                    System.out.println("Utilisateur non trouvé.");
+                List<fr.usmb.challengeup.entities.User> listUser = userService.getAllUsers();
+                for (int i = 0; i<listUser.size(); i++){
+                    fr.usmb.challengeup.entities.User userFromList = listUser.get(i);
+                    if (userFromList != null && user != null) {
+                        user.openPrivateChannel().queue(privateChannel -> {
+                            privateChannel.sendMessage("Bonjour " + user.getAsTag() + ", ceci est un message automatique qui vous rappel que vous avez toujours des challenges en cours. Souhaitez vous en valider quelques un ?").queue();
+                            tupleSpace.put(Long.valueOf(user.getId()), 1);
+                        System.out.println("Message envoyé à " + user.getAsTag());
+                        });
+                    } else {
+                        System.out.println("Utilisateur non trouvé.");
+                    }
                 }
             }
-        }, 0, 1 * 60 * 1000);
+        }, 0, minutes * 60 * 1000);
 
 
     }
