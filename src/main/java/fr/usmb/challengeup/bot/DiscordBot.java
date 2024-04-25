@@ -153,7 +153,7 @@ public class DiscordBot extends ListenerAdapter {
 
         // Version à implementer quand on pourra recuperer les challenges d'un User (a decommenter ici)
         challenges.clear();
-        challenges = setToArrayList(userService.getChallengesByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */));
+        challenges = setToArrayList(userService.getChallengesByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */ 1));
 
         if (!tupleSpace.containsKey(Long.valueOf(author.getId()))){
             if (message.equalsIgnoreCase("!start")) {
@@ -260,7 +260,7 @@ public class DiscordBot extends ListenerAdapter {
         // User user = jda.retrieveUserById(692668155327152149L).complete(); // ID de l'utilisateur Théo
         User user = jda.retrieveUserById(524296395306565653L).complete(); // ID de l'utilisateur Julien
         // List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(user.getIdLong());
-        List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */);
+        List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */ 1);
         int minutes = 5;
 
         Timer timer = new Timer();
