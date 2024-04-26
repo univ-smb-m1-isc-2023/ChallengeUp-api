@@ -74,12 +74,6 @@ public class DiscordBot extends ListenerAdapter {
 
     }
 
-    public ArrayList<String> getListChallenges (String idUser){
-        // retourne la liste des d'un User
-        ArrayList<String> res = new ArrayList<>();
-        return res;
-    }
-
     public Integer indiceChallengeInProgressesList(List<Progress> uP, Integer indiceChallenge){
         int i = 0;
         for (int j = 0; j < uP.size(); j++){
@@ -126,16 +120,7 @@ public class DiscordBot extends ListenerAdapter {
         long differenceEnHeures = differenceEnMillisecondes / (60 * 60 * 1000);
         return differenceEnHeures >= heure;
     }
-
-    public static ArrayList<Challenge> setToArrayList(Set<Challenge> c) {
-        // Créer une nouvelle ArrayList pour stocker les challenges
-        ArrayList<Challenge> challengeList = new ArrayList<>(c.size());
-        for (Challenge challenge : c) {
-            challengeList.add(challenge);
-        }
-        return challengeList;
-    }
-
+    
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return; // Ignore les messages provenant des bots
@@ -156,9 +141,9 @@ public class DiscordBot extends ListenerAdapter {
         if (!tupleSpace.containsKey(Long.valueOf(author.getId()))){
             if (message.equalsIgnoreCase("!start")) {
                 // List<fr.usmb.challengeup.entities.User> listUser = userService.getAllUsers();
-                // author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Voici les " + listUser.size() + " utilisateurs présents dans la base : ")).queue();
+                // author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Voici les " + listUser.size() + " utilisateurs présents dans la base : ")).queue();
                 // for (int i = 0; i<listUser.size(); i++){
-                //     //author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Voici les utilisateurs présents dans la base : ")).queue();
+                //     //author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Voici les utilisateurs présents dans la base : ")).queue();
                 //     System.out.println(listUser.get(i));
                 // }
                 waitingForConfirmation = true;
@@ -179,7 +164,7 @@ public class DiscordBot extends ListenerAdapter {
                         Challenge challenge = challengesNotCompleted.get(i);
                         sendPrivateMessage(author.getId(), (i + 1) + " - " + challenge.getTitle());
                     }
-                    author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Vous êtes actuellement à jour sur vos challenges. Bravo :thumbsup: !!!")).queue();
+                    author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Vous êtes actuellement à jour sur vos challenges. Bravo :thumbsup: !!!")).queue();
                     tupleSpace.remove(Long.valueOf(author.getId()));
                 }
 
@@ -218,7 +203,7 @@ public class DiscordBot extends ListenerAdapter {
                     }
                 }
                 else if (tupleSpace.get(Long.valueOf(author.getId()))==2){ // Etape de detection de challenges à retirer
-                    // author.openPrivateChannel().flatMap(teste -> teste.sendMessage(message)).queue();
+                    // author.openPrivateChannel().flatMap(chat -> chat.sendMessage(message)).queue();
                     try {
                         int number = Integer.parseInt(message);
                         if (number==0){
