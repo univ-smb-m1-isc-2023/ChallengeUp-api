@@ -127,6 +127,7 @@ public class DiscordBot extends ListenerAdapter {
 
     public Progress getMostRecentProgress(List<Progress> progressList) {
         return progressList.stream()
+                           .filter(p -> !p.isCompleted())
                            .max(Comparator.comparing(Progress::getDate))
                            .orElse(null);
     }
