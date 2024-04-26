@@ -25,7 +25,7 @@ public class User {
 
     private boolean isPublic;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     @JsonIgnore
     private Set<Challenge> challenges = new HashSet<>();
 
