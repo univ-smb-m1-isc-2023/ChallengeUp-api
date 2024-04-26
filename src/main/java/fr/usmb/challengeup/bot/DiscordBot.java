@@ -74,25 +74,13 @@ public class DiscordBot extends ListenerAdapter {
 
     }
 
-    public static char getFirstCharacter(String str) {
-        return str.charAt(0);
-    }
-    public static String removeFirstCharacter(String str) {
-        if (str != null && !str.isEmpty()) {
-            return str.substring(1); // Renvoie la sous-chaîne à partir du deuxième caractère jusqu'à la fin.
-        } else {
-            return ("");
-        }
-    }
-
     public ArrayList<String> getListChallenges (String idUser){
-        // retourne la liste des Challenges d'un User
+        // retourne la liste des d'un User
         ArrayList<String> res = new ArrayList<>();
         return res;
     }
 
     public Integer indiceChallengeInProgressesList(List<Progress> uP, Integer indiceChallenge){
-        // Va mettre la valeur de isCompleted du progres a True
         int i = 0;
         for (int j = 0; j < uP.size(); j++){
             if(!uP.get(j).isCompleted()){
@@ -103,8 +91,6 @@ public class DiscordBot extends ListenerAdapter {
             }
         }
         return -1;
-        
-        // progressService.setIsCompleted(null, bool);
     }
 
     public void sendPrivateMessage(String userId, String content) {
@@ -166,27 +152,6 @@ public class DiscordBot extends ListenerAdapter {
                 challenges.add(userProgresses.get(i).getChallenge());
             }
         }
-
-        //System.out.println("Auteur : " + author + " Message : " + message);
-
-        //User author2 = event.getJDA().getUserById(524296395306565653); //martin
-        // User author2 = event.getJDA().getUserById(312898934869590016L); //julien
-        // User a = (User) event.getJDA().retrieveUserById(524296395306565653L);
-        // User a = (User) event.getJDA().retrieveUserById(692668155327152149);
-        // System.out.println(a);
-
-        //sendPrivateMessage(event.getJDA(), "524296395306565653", "prout");
-        //System.out.println(author2);
-
-        /*
-        event.getJDA().retrieveUserById(524296395306565653L).queue(martin -> {
-            System.out.println(martin);
-        });
-        */
-
-        // Version à implementer quand on pourra recuperer les challenges d'un User (a decommenter ici)
-        //challenges.clear();
-        // challenges = setToArrayList(userService.getChallengesByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */ 1));
 
         if (!tupleSpace.containsKey(Long.valueOf(author.getId()))){
             if (message.equalsIgnoreCase("!start")) {
