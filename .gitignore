@@ -32,4 +32,3 @@ build/
 ### VS Code ###
 .vscode/
 logs/challenge-up.log
-src/main/resources/logback.xml
