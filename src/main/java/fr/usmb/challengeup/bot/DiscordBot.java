@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.entities.User;
-/* import net.dv8tion.jda.api.entities.Message;*/
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,16 +20,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-// import java.util.Optional;
 
 import javax.security.auth.login.LoginException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-/* import java.util.concurrent.TimeUnit; */
 
 @Component
 public class DiscordBot extends ListenerAdapter {
@@ -183,12 +179,12 @@ public class DiscordBot extends ListenerAdapter {
                 // }
                 waitingForConfirmation = true;
                 if (!challenges.isEmpty()){
-                    author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Voici vos challenges en attente et votre ID : " + author.getId())).queue();
+                    author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Voici vos challenges en attente et votre ID : " + author.getId())).queue();
                     for (int i = 0; i < challenges.size(); i++){
                         int finalI = i;
-                        author.openPrivateChannel().flatMap(teste -> teste.sendMessage((finalI+1) + " : " + challenges.get(finalI).getTitle() )).queue();
+                        author.openPrivateChannel().flatMap(chat -> chat.sendMessage((finalI+1) + " : " + challenges.get(finalI).getTitle() )).queue();
                     }
-                    author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Avez vous des challenges à valider ?")).queue();
+                    author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Avez vous des challenges à valider ?")).queue();
                     tupleSpace.put(Long.valueOf(author.getId()), 1);
                 }
                 else{
@@ -209,36 +205,32 @@ public class DiscordBot extends ListenerAdapter {
             // System.out.println("Auteur : " + author + " Message : " + message);
             if(message.equalsIgnoreCase("annuler") || message.equalsIgnoreCase("cancel")){
                 System.out.println("cancel detecté");
-                author.openPrivateChannel().flatMap(teste -> teste.sendMessage("*conversation annulée*")).queue();
+                author.openPrivateChannel().flatMap(chat -> chat.sendMessage("*conversation annulée*")).queue();
                 tupleSpace.remove(Long.valueOf(author.getId()));
             }
             else {
                 if (tupleSpace.get(Long.valueOf(author.getId()))==1){ // Etape de detection de la reponse de l'utilisateur
                     //System.out.println("J'ai atteint la 2e etape et le message est : " + message .toLowerCase() + "de type : " + message.getClass().getName());
-                    for (int i = 0; i<oui.size(); i++){
-                        System.out.println(oui.get(i));
-                    }
                     if (non.contains(message.toLowerCase())) {
                         // System.out.println("non detecté");
                         tupleSpace.remove(Long.valueOf(author.getId()));
                         if (challenges.size()>2){
-                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Bah qu'est ce que tu attends ? Tu as encore " + challenges.size() + " challenges à faire !!!")).queue();
+                            author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Bah qu'est ce que tu attends ? Tu as encore " + challenges.size() + " challenges à faire !!!")).queue();
                         }
                         else{
-                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Pas de soucis, ne négligez pas le travail à faire.")).queue();
+                            author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Pas de soucis, ne négligez pas le travail à faire.")).queue();
                         }
                     }
                     else if (oui.contains(message.toLowerCase())){
-                        // System.out.println("oui detecté");
                         tupleSpace.put(Long.valueOf(author.getId()), 2);
-                        author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Très bien, lequel voulez vous valider ? (tapez 0 si vous n'en avez pas)")).queue();
+                        author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Très bien, lequel voulez vous valider ? (tapez 0 si vous n'en avez pas)")).queue();
                         for (int i = 0; i < challenges.size(); i++){
                             int finalI = i;
-                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage((finalI+1) + " : " + challenges.get(finalI).getTitle() )).queue();
+                            author.openPrivateChannel().flatMap(chat -> chat.sendMessage((finalI+1) + " : " + challenges.get(finalI).getTitle() )).queue();
                         }
                     }
                     else {
-                        author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Je n'ai pas compris. Avez vous des challenges à valider ?")).queue();
+                        author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Je n'ai pas compris. Avez vous des challenges à valider ?")).queue();
                     }
                 }
                 else if (tupleSpace.get(Long.valueOf(author.getId()))==2){ // Etape de detection de challenges à retirer
@@ -246,28 +238,28 @@ public class DiscordBot extends ListenerAdapter {
                     try {
                         int number = Integer.parseInt(message);
                         if (number==0){
-                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage("*conversation annulée*")).queue();
+                            author.openPrivateChannel().flatMap(chat -> chat.sendMessage("*conversation annulée*")).queue();
                             tupleSpace.remove(Long.valueOf(author.getId()));
                         }
                         else if (number <= challenges.size()){
-                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Le challenge " + number + " a bien été validé.")).queue();
+                            author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Le challenge " + number + " a bien été validé.")).queue();
                             challenges.remove(number-1);
                             progressService.setIsCompleted(userProgresses.get(indiceChallengeInProgressesList(userProgresses,number)), true);
                             if (challenges.size()==0){
-                                author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Vous n'avez plus de challenge à valider. Félicitations !!!")).queue();
+                                author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Vous n'avez plus de challenge à valider. Félicitations !!!")).queue();
                                 tupleSpace.remove(Long.valueOf(author.getId()));
                             }
                             else{
-                                author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Souhaitez vous toujours valider des challenges ?")).queue();
+                                author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Souhaitez vous toujours valider des challenges ?")).queue();
                                 tupleSpace.put(Long.valueOf(author.getId()), 1);
                             }
 
                         }
                         else {
-                            author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Veuillez rentrer un nombre compris entre 1 et " + challenges.size() + " (ou 0 si vous avez changer d'avis)")).queue();
+                            author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Veuillez rentrer un nombre compris entre 1 et " + challenges.size() + " (ou 0 si vous avez changer d'avis)")).queue();
                         }
                     } catch (NumberFormatException e) {
-                        author.openPrivateChannel().flatMap(teste -> teste.sendMessage("Veuillez rentrer un nombre compris entre 1 et " + challenges.size() + " (ou 0 si vous avez changer d'avis)")).queue();
+                        author.openPrivateChannel().flatMap(chat -> chat.sendMessage("Veuillez rentrer un nombre compris entre 1 et " + challenges.size() + " (ou 0 si vous avez changer d'avis)")).queue();
                     }
                 }
             }
@@ -277,9 +269,10 @@ public class DiscordBot extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
+        initializeSomeVariables();
         JDA jda = event.getJDA();
-        User user = jda.retrieveUserById(692668155327152149L).complete(); // ID de l'utilisateur Théo
-        // User user = jda.retrieveUserById(524296395306565653L).complete(); // ID de l'utilisateur Julien
+        //User user = jda.retrieveUserById(692668155327152149L).complete(); // ID de l'utilisateur Théo
+        User user = jda.retrieveUserById(524296395306565653L).complete(); // ID de l'utilisateur Julien
         // List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(user.getIdLong());
         // List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */ 1);
         int minutes = 5;
@@ -312,7 +305,6 @@ public class DiscordBot extends ListenerAdapter {
         challenges.add(challengetest);
         challenges.add(challengetest);
         challenges.add(challengetest);
-        initializeSomeVariables();
         JDABuilder builder = JDABuilder.createDefault(bottoken);
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
             .addEventListeners(new DiscordBot())
