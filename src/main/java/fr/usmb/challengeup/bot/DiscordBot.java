@@ -26,7 +26,9 @@ import javax.security.auth.login.LoginException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 @Component
 public class DiscordBot extends ListenerAdapter {
@@ -44,6 +46,7 @@ public class DiscordBot extends ListenerAdapter {
     private static ArrayList<String> non = new ArrayList<>();
     private static ArrayList<Challenge> challenges = new ArrayList<Challenge>();
     private static String bottoken = "";
+    private List<Progress> userProgresses = null;
 
     // Autres méthodes de classe
 
@@ -120,6 +123,21 @@ public class DiscordBot extends ListenerAdapter {
                 challengesNotCompleted.add(progress.getChallenge());
         }
         return challengesNotCompleted;
+    }
+
+    public Progress getMostRecentProgress(List<Progress> progressList) {
+        return progressList.stream()
+                           .max(Comparator.comparing(Progress::getDate))
+                           .orElse(null);
+    }
+
+    public boolean needNotification(List<Progress> pl, Integer heure){
+        Progress p = getMostRecentProgress(pl);
+        Date dateProgress = p.getDate();
+        Date dateActuelle = new Date();
+        long differenceEnMillisecondes = dateActuelle.getTime() - dateProgress.getTime();
+        long differenceEnHeures = differenceEnMillisecondes / (60 * 60 * 1000);
+        return differenceEnHeures >= heure;
     }
 
     public static ArrayList<Challenge> setToArrayList(Set<Challenge> c) {
@@ -267,44 +285,83 @@ public class DiscordBot extends ListenerAdapter {
         //System.out.println(tupleSpace);
     }
 
+    //////////////////
+    /////// V1 ///////
+    //////////////////
+
+    // @Override
+    // public void onReady(ReadyEvent event) {
+    //     initializeSomeVariables();
+    //     JDA jda = event.getJDA();
+    //     User user = jda.retrieveUserById(692668155327152149L).complete(); // ID de l'utilisateur Théo
+    //     // User user = jda.retrieveUserById(524296395306565653L).complete(); // ID de l'utilisateur Julien
+    //     // List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(user.getIdLong());
+    //     // List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */ 1);
+    //     int minutes = 5;
+
+    //     Timer timer = new Timer();
+    //     timer.scheduleAtFixedRate(new TimerTask() {
+    //         @Override
+    //         public void run() {
+    //             List<fr.usmb.challengeup.entities.User> listUser = userService.getAllUsers();
+    //             for (int i = 0; i<listUser.size(); i++){
+    //                 fr.usmb.challengeup.entities.User userFromList = listUser.get(i);
+    //                 if (userFromList != null && user != null) {
+    //                     // // à décommenter si on a discordID dans la table User 
+    //                     // user = jda.retrieveUserById(userFromList.discordID).complete();
+    //                     user.openPrivateChannel().queue(privateChannel -> {
+    //                         privateChannel.sendMessage("Bonjour " + user.getAsTag() + ", ceci est un message automatique qui vous rappel que vous avez toujours des challenges en cours. Souhaitez vous en valider quelques un ?").queue();
+    //                         tupleSpace.put(Long.valueOf(user.getId()), 1);
+    //                     System.out.println("Message envoyé à " + user.getAsTag() + " et son nom dans la base est : " + userFromList.getUsername());
+    //                     });
+    //                 } else {
+    //                     System.out.println("Utilisateur non trouvé.");
+    //                 }
+    //             }
+    //         }
+    //     }, 0, minutes * 60 * 1000);
+    // }
+
+    //////////////////
+    /////// V2 ///////
+    //////////////////
+
     @Override
     public void onReady(ReadyEvent event) {
         initializeSomeVariables();
         JDA jda = event.getJDA();
-        //User user = jda.retrieveUserById(692668155327152149L).complete(); // ID de l'utilisateur Théo
-        User user = jda.retrieveUserById(524296395306565653L).complete(); // ID de l'utilisateur Julien
-        // List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(user.getIdLong());
-        // List<Challenge> listOfChallengesNotCompleted = getChallengesNotCompletedByUserId(/* Mettre ici l'id d'un user existant (pas discord id) */ 1);
+        User user = jda.retrieveUserById(692668155327152149L).complete(); // ID de l'utilisateur Théo
+        // User user = jda.retrieveUserById(524296395306565653L).complete(); // ID de l'utilisateur Julien
         int minutes = 5;
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                // List<fr.usmb.challengeup.entities.User> listUser = userService.getAllUsers();
-                // for (int i = 0; i<listUser.size(); i++){
-                    // fr.usmb.challengeup.entities.User userFromList = listUser.get(i);
-                    if (/*userFromList != null && */user != null) {
-                        user.openPrivateChannel().queue(privateChannel -> {
-                            privateChannel.sendMessage("Bonjour " + user.getAsTag() + ", ceci est un message automatique qui vous rappel que vous avez toujours des challenges en cours. Souhaitez vous en valider quelques un ?").queue();
-                            tupleSpace.put(Long.valueOf(user.getId()), 1);
-                        System.out.println("Message envoyé à " + user.getAsTag());
-                        });
+                List<fr.usmb.challengeup.entities.User> listUser = userService.getAllUsers();
+                for (int i = 0; i<listUser.size(); i++){
+                    fr.usmb.challengeup.entities.User userFromList = listUser.get(i);
+                    userProgresses = progressService.getProgressesByUserId(userFromList.getId());
+                    if (userFromList != null && user != null) {
+                        // // à décommenter si on a discordID dans la table User 
+                        // user = jda.retrieveUserById(userFromList.discordID).complete();
+                        if (needNotification(userProgresses, 18)){
+                            user.openPrivateChannel().queue(privateChannel -> {
+                                privateChannel.sendMessage("Bonjour " + user.getAsTag() + ", ceci est un message automatique qui vous rappel que vous avez toujours des challenges en cours. Souhaitez vous en valider quelques un ?").queue();
+                                tupleSpace.put(Long.valueOf(user.getId()), 1);
+                            System.out.println("Message envoyé à " + user.getAsTag() + " et son nom dans la base est : " + userFromList.getUsername());
+                            });
+                        }
+
                     } else {
                         System.out.println("Utilisateur non trouvé.");
                     }
-                // }
+                }
             }
         }, 0, minutes * 60 * 1000);
-
-
     }
 
     public static void main(String[] args) throws LoginException {
-        Challenge challengetest = new Challenge("Le titre", "le tag", null, "Ceci est la description du challenge", null);
-        challenges.add(challengetest);
-        challenges.add(challengetest);
-        challenges.add(challengetest);
         JDABuilder builder = JDABuilder.createDefault(bottoken);
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
             .addEventListeners(new DiscordBot())
